@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Application/">
+    <Project Path="Application/MusicMasterShop.Application/MusicMasterShop.Application.csproj" />
+  </Folder>
+  <Folder Name="/Domain/">
+    <Project Path="Domain/MusicMasterShop.Domain/MusicMasterShop.Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Infrastructure/MusicMasterShop.InfraData/MusicMasterShop.InfraData.csproj" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="Presentation/MusicMasterShop.WebApi/MusicMasterShop.WebApi.csproj" />
+  </Folder>
+  <Folder Name="/Test/">
+    <Project Path="Test/MusicMasterShop.Test/MusicMasterShop.Test.csproj" />
+  </Folder>
+</Solution>
