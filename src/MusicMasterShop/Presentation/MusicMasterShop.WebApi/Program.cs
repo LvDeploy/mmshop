@@ -16,6 +16,7 @@ builder.AddWebApiConfiguration();
 builder.AddCorsConfiguration();
 builder.AddSwaggerConfiguration();
 builder.AddEFContextConfiguration();
+builder.AddAuthenticationConfiguration();
 //builder.AddOpenTelemetryConfiguration();
 //builder.AddOpenTelemetryLoggingConfiguration();
 var app = builder.Build();
@@ -28,7 +29,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseWebApplicationConfiguration();
-app.UseAuthorization();
+app.UseAuthenticationConfiguration();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.MapControllers();
 app.UseSwaggerConfiguration(app.Environment, app.DescribeApiVersions());

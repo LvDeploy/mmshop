@@ -10,10 +10,16 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUsuarioRepository _userRepository;
-        public CreateUserCommandHandler(IUnitOfWork unitOfWork, IUsuarioRepository usuarioRepository)
+        private readonly Microsoft.AspNetCore.Identity.IPasswordHasher<Usuario> _passwordHasher;
+
+        public CreateUserCommandHandler(
+            IUnitOfWork unitOfWork,
+            IUsuarioRepository usuarioRepository,
+            Microsoft.AspNetCore.Identity.IPasswordHasher<Usuario> passwordHasher)
         {
             _userRepository = usuarioRepository;
             _unitOfWork = unitOfWork;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<BaseResponse<CreateUserResponse>> Handle(CreateUserRequest request, CancellationToken cancellationToken)
@@ -23,10 +29,13 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
                 return ResponseWrapper.Failure<CreateUserResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
             }
 
-            var entity = Usuario.Create(email: request.Email,
+            var entity = Usuario.Create(email: request.Email.Trim(),
                 nome: request.Nome,
-                senha: request.Senha,
+                senha: string.Empty,
                 tipo: request.TipoUsuario!.Value);
+
+            string passwordHash = _passwordHasher.HashPassword(entity, request.Senha);
+            entity.SetPassword(passwordHash);
 
             _userRepository.Create(entity);
             await _unitOfWork.CommitAsync(cancellationToken);

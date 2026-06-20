@@ -33,6 +33,11 @@ namespace MusicMasterShop.Domain.Entities
             return new Usuario(id, email, nome, senha, tipo, true, createAt, DateTime.Now);
         }
 
+        public void SetPassword(string passwordHash)
+        {
+            Senha = passwordHash;
+        }
+
         public static Usuario Restore(Guid id, string email, string nome, TipoUsuario tipo, bool ativo, DateTime createAt, DateTime updateAt)
         {
             return new Usuario(id ,email, nome, string.Empty, tipo, ativo, createAt, updateAt);

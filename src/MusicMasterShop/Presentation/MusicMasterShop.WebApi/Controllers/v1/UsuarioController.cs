@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using MusicMasterShop.Application.Middleware.Correlation;
 using MusicMasterShop.Application.Queries.GetUser;
 using MusicMasterShop.Application.UseCases.CreateUser;
@@ -11,6 +12,7 @@ namespace MusicMasterShop.WebApi.Controllers.v1
     [Route("mmshop/v{version:apiVersion}/[controller]")]
     [Produces("application/json")]
     [ApiController]
+    [Authorize]
     public class UsuarioController : ApiControllerBase
     {
         private IMediator _mediator;
@@ -20,6 +22,7 @@ namespace MusicMasterShop.WebApi.Controllers.v1
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(SuccessResult<bool>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CreateUserResponse>> Create([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
