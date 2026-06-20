@@ -5,7 +5,7 @@ using MusicMasterShop.Domain.Enums;
 
 namespace MusicMasterShop.Application.UseCases.CreateUser
 {
-    public sealed record CreateUserRequest(string Email, string Nome, TipoUsuario? TipoUsuario, string Senha, string SenhaConfirmacao) : BaseRequest, IRequest<BaseResponse<CreateUserResponse>>
+    public sealed record CreateUserRequest(string Email, string Nome, TipoUsuario? TipoUsuario, string Senha) : BaseRequest, IRequest<BaseResponse<CreateUserResponse>>
     {
         public override bool IsValid()
         {
