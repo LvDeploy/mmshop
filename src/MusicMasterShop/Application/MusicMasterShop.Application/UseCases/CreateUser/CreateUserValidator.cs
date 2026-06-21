@@ -8,25 +8,25 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
         {
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .WithMessage("Campo e-mail não pode ser vazio")
+                .WithMessage(x => $"Campo {nameof(x.Email)} não pode ser vazio")
                 .MaximumLength(100)
-                .WithMessage("Campo e-mail deve ter no máximo 100 caracteres")
+                .WithMessage(x => $"Campo {nameof(x.Email)} deve ter no máximo 100 caracteres")
                 .EmailAddress()
-                .WithMessage("Campo e-mail é inválido");
+                .WithMessage(x => $"Campo {nameof(x.Email)} é inválido");
 
             RuleFor(x => x.Senha)
                 .NotEmpty()
-                .WithMessage("Campo senha não pode ser vazio")
+                .WithMessage(x => $"Campo {nameof(x.Senha)} não pode ser vazio")
                 .MinimumLength(6)
-                .WithMessage("Campo senha deve ter no mínimo 6 caracteres");
+                .WithMessage(x => $"Campo {nameof(x.Senha)} deve ter no mínimo 6 caracteres");
 
             RuleFor(x => x.Nome)
                 .NotEmpty()
-                .WithMessage("Campo nome não pode ser vazio");
+                .WithMessage(x => $"Campo {nameof(x.Nome)} não pode ser vazio");
 
             RuleFor(x => x.TipoUsuario)
                 .NotNull()
-                .WithMessage("Campo tipoUsuario não pode ser vazio");
+                .WithMessage(x => $"Campo {nameof(x.TipoUsuario)} não pode ser vazio");
         }
     }
 }

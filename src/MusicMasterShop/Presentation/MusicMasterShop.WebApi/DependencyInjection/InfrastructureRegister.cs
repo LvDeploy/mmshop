@@ -10,6 +10,8 @@ namespace MusicMasterShop.WebApi.DependencyInjection
         {
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+            builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+            builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
         }
     }
 }

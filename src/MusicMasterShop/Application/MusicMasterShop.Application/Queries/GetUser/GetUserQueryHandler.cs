@@ -17,7 +17,7 @@ namespace MusicMasterShop.Application.Queries.GetUser
 
         public async Task<BaseResponse<GetUserResponse>> Handle(GetUserRequest request, CancellationToken cancellationToken)
         {;
-            var entity = await _userRepository.Get(request.id, cancellationToken);
+            var entity = await _userRepository.Get(request.Id, cancellationToken);
 
             if(entity is null)
             {
