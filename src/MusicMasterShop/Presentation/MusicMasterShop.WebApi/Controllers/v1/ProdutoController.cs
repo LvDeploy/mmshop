@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicMasterShop.Application.Middleware.Correlation;
+using MusicMasterShop.Application.Middleware.UserInfo;
 using MusicMasterShop.Application.Queries.GetProduct;
 using MusicMasterShop.Application.Queries.GetProductsPaged;
 using MusicMasterShop.Application.UseCases.CreateProduct;
 using MusicMasterShop.Application.UseCases.DeleteProduct;
 using MusicMasterShop.Application.UseCases.UpdateProduct;
+using MusicMasterShop.Application.UseCases.UpdateProductStorageCount;
 using MusicMasterShop.Domain.Core.Pagination;
 using MusicMasterShop.Domain.Core.Result;
 using MusicMasterShop.WebApi.Controllers.Base;
@@ -19,10 +21,16 @@ namespace MusicMasterShop.WebApi.Controllers.v1
     [Authorize]
     public class ProdutoController : ApiControllerBase
     {
-        private IMediator _mediator;
-        public ProdutoController(IMediator mediator, CorrelationId correlationId) : base(correlationId)
+        private readonly IMediator _mediator;
+        private readonly IUserInfo _userInfo;
+
+        public ProdutoController(
+            IMediator mediator,
+            CorrelationId correlationId,
+            IUserInfo userInfo) : base(correlationId)
         {
             _mediator = mediator;
+            _userInfo = userInfo;
         }
 
         [HttpPost]
@@ -30,6 +38,9 @@ namespace MusicMasterShop.WebApi.Controllers.v1
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CreateProductResponse>> Create([FromBody] CreateProductRequest request, CancellationToken cancellationToken)
         {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
             var result = await _mediator.Send(request, cancellationToken);
             return CreateResponse(result);
         }
@@ -42,6 +53,9 @@ namespace MusicMasterShop.WebApi.Controllers.v1
             [FromQuery] int pageSize = 10,
             CancellationToken cancellationToken = default)
         {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
             var request = new GetProductsPagedRequest(pageNumber, pageSize);
             var result = await _mediator.Send(request, cancellationToken);
             return CreateResponse(result);
@@ -52,6 +66,9 @@ namespace MusicMasterShop.WebApi.Controllers.v1
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<GetProductResponse>> GetProductById(Guid id, CancellationToken cancellationToken)
         {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
             var request = new GetProductRequest(id);
             var result = await _mediator.Send(request, cancellationToken);
             return CreateResponse(result);
@@ -61,11 +78,27 @@ namespace MusicMasterShop.WebApi.Controllers.v1
         [ProducesResponseType(typeof(SuccessResult<UpdateProductResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<UpdateProductResponse>> Update(
+        public async Task<ActionResult<UpdateProductResponse>> Update(Guid id, [FromBody] UpdateProductRequest request, CancellationToken cancellationToken)
+        {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
+            var result = await _mediator.Send(request with { Id = id }, cancellationToken);
+            return CreateResponse(result);
+        }
+
+        [HttpPatch("{id:Guid}/storage-count")]
+        [ProducesResponseType(typeof(SuccessResult<UpdateProductStorageCountResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UpdateProductStorageCountResponse>> UpdateStorageCount(
             Guid id,
-            [FromBody] UpdateProductRequest request,
+            [FromBody] UpdateProductStorageCountRequest request,
             CancellationToken cancellationToken)
         {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
             var result = await _mediator.Send(request with { Id = id }, cancellationToken);
             return CreateResponse(result);
         }
@@ -75,6 +108,9 @@ namespace MusicMasterShop.WebApi.Controllers.v1
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<bool>> Delete(Guid id, CancellationToken cancellationToken)
         {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
             var result = await _mediator.Send(new DeleteProductRequest(id), cancellationToken);
             return CreateResponse(result);
         }

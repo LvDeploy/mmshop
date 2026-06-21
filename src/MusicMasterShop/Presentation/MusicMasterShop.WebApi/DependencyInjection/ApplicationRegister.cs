@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MusicMasterShop.Application.Middleware.Correlation;
+using MusicMasterShop.Application.Middleware.UserInfo;
 using MusicMasterShop.Application.Services.Jwt;
 using MusicMasterShop.Domain.Entities;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace MusicMasterShop.WebApi.DependencyInjection
             builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assemblyApplication));
             builder.Services.AddValidatorsFromAssembly(assemblyApplication);
             builder.Services.AddScoped<CorrelationId>();
+            builder.Services.AddScoped<IUserInfo, UserInfo>();
             builder.Services.AddScoped<
                 Microsoft.AspNetCore.Identity.IPasswordHasher<Usuario>,
                 Microsoft.AspNetCore.Identity.PasswordHasher<Usuario>>();

@@ -89,12 +89,7 @@ namespace MusicMasterShop.Domain.Entities
         
         public void AddQtdDisponivel(uint qtd)
         {
-            QtdDisponivel += qtd;
-        }
-
-        public void RemoveQtdDisponivel(uint qtd)
-        {
-            QtdDisponivel -= qtd;
+            QtdDisponivel = qtd;
         }
     }
 }
