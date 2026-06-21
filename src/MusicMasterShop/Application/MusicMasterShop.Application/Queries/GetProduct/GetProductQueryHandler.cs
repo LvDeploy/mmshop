@@ -16,15 +16,25 @@ namespace MusicMasterShop.Application.Queries.GetProduct
 
         public async Task<BaseResponse<GetProductResponse>> Handle(GetProductRequest request, CancellationToken cancellationToken)
         {
-            var entity = await _produtoRepository.Get(request.Id, cancellationToken);
+            var entity = await _produtoRepository.GetWithDetailsAsync(request.Id, cancellationToken);
 
             if (entity is null)
             {
                 return ResponseWrapper.Failure<GetProductResponse>(Error.Set("Registro não encontrado"), ErrorType.NotFound);
             }
 
-            return ResponseWrapper.Success<GetProductResponse>(new GetProductResponse(entity.Nome, 
-                entity.Descricao, entity.Modelo, entity.Marca, entity.SerialNumber, entity.GarantiaEmDias, entity.Preco, entity.Categoria.Tipo, entity.Dimensao));
+            return ResponseWrapper.Success(new GetProductResponse(
+                entity.Id,
+                entity.Nome,
+                entity.Descricao,
+                entity.Modelo,
+                entity.Marca,
+                entity.SerialNumber,
+                entity.GarantiaEmDias,
+                entity.Preco,
+                entity.QtdDisponivel,
+                entity.Categoria.Tipo,
+                entity.Dimensao));
         }
     }
 }

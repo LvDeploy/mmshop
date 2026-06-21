@@ -1,8 +1,5 @@
 ﻿using MusicMasterShop.Domain.Entities.Base;
-using MusicMasterShop.Domain.Enums;
 using MusicMasterShop.Domain.ValueObjects;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace MusicMasterShop.Domain.Entities
 {
@@ -35,18 +32,9 @@ namespace MusicMasterShop.Domain.Entities
         public int GarantiaEmDias { get; private set; } 
         public decimal Preco { get; private set; }
         public uint QtdDisponivel { get; private set; }
-        [JsonIgnore]
-        public int DimensaoId { get; set; }
-
-        [ForeignKey(nameof(DimensaoId))]
-        [InverseProperty(nameof(Dimensao.Produto))]
-        public Dimensao Dimensao { get; set; }
-        [JsonIgnore]
-        public Guid CategoriaId { get; set; }
-
-        [ForeignKey(nameof(CategoriaId))]
-        [InverseProperty(nameof(Categoria.Produto))]
-        public Categoria Categoria { get; set; }
+        public Dimensao Dimensao { get; private set; } = null!;
+        public Guid CategoriaId { get; private set; }
+        public Categoria Categoria { get; private set; } = null!;
 
         public static Produto Create(string nome, string descricao, string modelo, string marca, string serialNumber, int? garantiaEmDias,
             decimal preco, Dimensao dimensao, Categoria categoria)
@@ -66,12 +54,37 @@ namespace MusicMasterShop.Domain.Entities
             return produto;
         }     
 
+        public void UpdateDetails(
+            string nome,
+            string descricao,
+            string modelo,
+            string marca,
+            string serialNumber,
+            int garantiaEmDias,
+            decimal preco,
+            Dimensao dimensao,
+            Categoria categoria)
+        {
+            Nome = nome;
+            Descricao = descricao;
+            Modelo = modelo;
+            Marca = marca;
+            SerialNumber = serialNumber;
+            GarantiaEmDias = garantiaEmDias;
+            Preco = preco;
+            SetNavigationProperties(dimensao, categoria);
+            SetUpdateDate(DateTime.Now);
+        }
+
         public void SetNavigationProperties(Dimensao dimensao, Categoria categoria)
         {
             if (dimensao != null)
                 Dimensao = dimensao;
             if (categoria != null)
+            {
                 Categoria = categoria;
+                CategoriaId = categoria.Id;
+            }
         }
         
         public void AddQtdDisponivel(uint qtd)

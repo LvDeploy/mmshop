@@ -15,7 +15,7 @@ namespace MusicMasterShop.Domain.Entities
         public string Nome { get; private set; } = string.Empty;
         public TipoCategoria Tipo { get; private set; }
         [JsonIgnore]
-        public Produto Produto { get; set; } 
+        public ICollection<Produto> Produtos { get; private set; } = [];
 
         public static Categoria Create(TipoCategoria tipo, string nome)
         {
