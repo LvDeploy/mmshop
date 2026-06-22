@@ -5,4 +5,7 @@ namespace MusicMasterShop.Domain.Contracts.Repositories;
 
 public interface IPedidoRepository : IBaseRepository<Pedido>
 {
+    Task<Pedido?> GetWithDetailsAsync(
+        Guid id,
+        CancellationToken cancellationToken);
 }

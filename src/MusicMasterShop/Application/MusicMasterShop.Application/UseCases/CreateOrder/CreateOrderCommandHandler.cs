@@ -42,7 +42,7 @@ public sealed class CreateOrderCommandHandler
 
         if (!_userInfo.IsAuthenticated
             || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || _userInfo.Id is not Guid usuarioId)
+            || !_userInfo.Id.HasValue)
         {
             return ResponseWrapper.Failure<CreateOrderResponse>(
                 Error.Set("Apenas usuários vendedores podem criar pedidos"),
@@ -60,7 +60,7 @@ public sealed class CreateOrderCommandHandler
                 ErrorType.NotFound);
         }
 
-        if (carrinho.UsuarioId != usuarioId)
+        if (carrinho.UsuarioId != _userInfo.Id.Value)
         {
             return ResponseWrapper.Failure<CreateOrderResponse>(
                 Error.Set("O carrinho não pertence ao usuário autenticado"),

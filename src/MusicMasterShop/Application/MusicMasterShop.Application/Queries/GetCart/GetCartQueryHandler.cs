@@ -29,7 +29,7 @@ public sealed class GetCartQueryHandler
     {
         if (!_userInfo.IsAuthenticated
             || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || _userInfo.Id is not Guid usuarioId)
+            || !_userInfo.Id.HasValue)
         {
             return ResponseWrapper.Failure<GetCartResponse>(
                 Error.Set("Apenas usuários vendedores podem consultar o carrinho"),
@@ -37,7 +37,7 @@ public sealed class GetCartQueryHandler
         }
 
         Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
-            usuarioId,
+            _userInfo.Id.Value,
             cancellationToken);
 
         if (carrinho is null)

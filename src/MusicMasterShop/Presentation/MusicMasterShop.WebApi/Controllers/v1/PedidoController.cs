@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using MusicMasterShop.Application.Middleware.Correlation;
 using MusicMasterShop.Application.Middleware.UserInfo;
 using MusicMasterShop.Application.Queries.GetCart;
+using MusicMasterShop.Application.Queries.GetOrder;
 using MusicMasterShop.Application.UseCases.CreateCart;
 using MusicMasterShop.Application.UseCases.CreateOrder;
 using MusicMasterShop.Application.UseCases.UpdateCart;
@@ -68,7 +69,7 @@ namespace MusicMasterShop.WebApi.Controllers.v1
             return CreateResponse(result);
         }
 
-        [HttpPost("criar-pedido")]
+        [HttpPost()]
         [ProducesResponseType(typeof(SuccessResult<CreateOrderResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -96,6 +97,24 @@ namespace MusicMasterShop.WebApi.Controllers.v1
 
             var result = await _mediator.Send(
                 new GetCartRequest(),
+                cancellationToken);
+
+            return CreateResponse(result);
+        }
+
+        [HttpGet("{pedidoId:Guid}")]
+        [ProducesResponseType(typeof(SuccessResult<GetOrderResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GetOrderResponse>> GetOrder(
+            Guid pedidoId,
+            CancellationToken cancellationToken)
+        {
+            if (_userInfo.TipoUsuario != TipoUsuario.Vendedor)
+                return Forbid();
+
+            var result = await _mediator.Send(
+                new GetOrderRequest(pedidoId),
                 cancellationToken);
 
             return CreateResponse(result);

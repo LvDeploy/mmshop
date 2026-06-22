@@ -41,7 +41,7 @@ public sealed class UpdateCartCommandHandler
 
         if (!_userInfo.IsAuthenticated
             || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || _userInfo.Id is not Guid usuarioId)
+            || !_userInfo.Id.HasValue)
         {
             return ResponseWrapper.Failure<UpdateCartResponse>(
                 Error.Set("Apenas usuários vendedores podem atualizar carrinhos"),
@@ -59,7 +59,7 @@ public sealed class UpdateCartCommandHandler
                 ErrorType.NotFound);
         }
 
-        if (carrinho.UsuarioId != usuarioId)
+        if (carrinho.UsuarioId != _userInfo.Id.Value)
         {
             return ResponseWrapper.Failure<UpdateCartResponse>(
                 Error.Set("O carrinho não pertence ao usuário autenticado"),

@@ -44,7 +44,7 @@ public sealed class CreateCartCommandHandler
 
         if (!_userInfo.IsAuthenticated
             || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || _userInfo.Id is not Guid usuarioId)
+            || !_userInfo.Id.HasValue)
         {
             return ResponseWrapper.Failure<CreateCartResponse>(
                 Error.Set("Apenas usuários vendedores podem criar carrinhos"),
@@ -62,7 +62,7 @@ public sealed class CreateCartCommandHandler
                 ErrorType.NotFound);
         }
 
-        Usuario? usuario = await _usuarioRepository.Get(usuarioId, cancellationToken);
+        Usuario? usuario = await _usuarioRepository.Get(_userInfo.Id.Value, cancellationToken);
 
         if (usuario is null || !usuario.Ativo)
         {
@@ -72,7 +72,7 @@ public sealed class CreateCartCommandHandler
         }
 
         Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
-            usuarioId,
+            _userInfo.Id.Value,
             cancellationToken);
 
         if (carrinho is null)
