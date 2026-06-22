@@ -224,10 +224,6 @@ src/MusicMasterShop/Presentation/MusicMasterShop.WebApi/appsettings.Development.
 
 ### Executar sem Docker
 
-commentar o seguintes metodos em Program.cs:
-- builder.AddOpenTelemetryConfiguration();
-- builder.AddOpenTelemetryLoggingConfiguration();
-
 ```bash
 dotnet restore src/MusicMasterShop/MusicMasterShop.slnx
 dotnet build src/MusicMasterShop/MusicMasterShop.slnx
@@ -259,7 +255,7 @@ docker compose logs -f
 Para encerrar os containers:
 
 ```bash
-docker compose down
+docker compose down -v
 ```
 
 ### Observabilidade com OpenTelemetry e Elastic
