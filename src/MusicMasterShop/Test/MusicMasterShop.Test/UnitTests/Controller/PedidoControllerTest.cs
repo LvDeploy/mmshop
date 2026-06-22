@@ -30,6 +30,7 @@ public sealed class PedidoControllerTest
         var response = new GetOrderResponse(
             pedidoId,
             Guid.NewGuid(),
+            "Vendedor",
             "12345678901",
             StatusPedido.Validado,
             DateTime.UtcNow,

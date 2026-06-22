@@ -41,7 +41,9 @@ public sealed class GetOrderQueryHandlerTests
     [Fact]
     public async Task Handle_WhenOrderExists_ReturnsMappedOrder()
     {
-        Usuario usuario = new UsuarioBuilder().Build();
+        Usuario usuario = new UsuarioBuilder()
+            .WithNome("Vendedor responsável")
+            .Build();
         Carrinho carrinho = new CarrinhoBuilder().WithUsuario(usuario).Build();
         Pedido pedido = new PedidoBuilder().WithCarrinho(carrinho).Build();
         SetupSeller(usuario.Id);
@@ -55,6 +57,7 @@ public sealed class GetOrderQueryHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(pedido.Id, result.Data!.Id);
+        Assert.Equal(usuario.Nome, result.Data.NomeUsuario);
         Assert.Equal(carrinho.Produtos.Count, result.Data.Produtos.Count);
     }
 

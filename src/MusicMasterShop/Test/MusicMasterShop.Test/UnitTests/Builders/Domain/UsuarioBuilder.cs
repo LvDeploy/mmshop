@@ -7,6 +7,12 @@ public sealed class UsuarioBuilder
     private string _senha = "hashed-password";
     private TipoUsuario _tipo = TipoUsuario.Vendedor;
 
+    public UsuarioBuilder WithNome(string value)
+    {
+        _nome = value;
+        return this;
+    }
+
     public UsuarioBuilder WithTipo(TipoUsuario value)
     {
         _tipo = value;

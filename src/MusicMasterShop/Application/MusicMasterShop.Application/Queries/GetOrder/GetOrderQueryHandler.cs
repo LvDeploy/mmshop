@@ -62,6 +62,7 @@ public sealed class GetOrderQueryHandler
             new GetOrderResponse(
                 pedido.Id,
                 pedido.CarrinhoId,
+                pedido.Carrinho.Usuario.Nome,
                 pedido.DocumentoCliente,
                 pedido.Status,
                 pedido.CreatedAt,
