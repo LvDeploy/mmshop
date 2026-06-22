@@ -1,5 +1,6 @@
 using MusicMasterShop.Application.Middleware.Correlation;
 using MusicMasterShop.WebApi.Configuration;
+using MusicMasterShop.WebApi.Configuration.Logging;
 using MusicMasterShop.WebApi.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,8 @@ builder.AddEFContextConfiguration();
 builder.AddAuthenticationConfiguration();
 builder.AddOpenTelemetryConfiguration();
 builder.AddOpenTelemetryLoggingConfiguration();
+builder.Services.Configure<WebApiTransactionLogOptions>(
+    builder.Configuration.GetSection(WebApiTransactionLogOptions.SectionName));
 var app = builder.Build();
 EFContextConfiguration.CreateDataBase(app); //CRIA BD APENAS PRA TESTE
 // Configure the HTTP request pipeline.
@@ -29,8 +32,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseWebApplicationConfiguration();
-app.UseAuthenticationConfiguration();
 app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<WebApiTransactionLogMiddleware>();
+app.UseAuthenticationConfiguration();
 app.MapControllers();
 app.UseSwaggerConfiguration(app.Environment, app.DescribeApiVersions());
 app.Run();
