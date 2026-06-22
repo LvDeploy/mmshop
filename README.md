@@ -224,6 +224,10 @@ src/MusicMasterShop/Presentation/MusicMasterShop.WebApi/appsettings.Development.
 
 ### Executar sem Docker
 
+commentar o seguintes metodos em Program.cs:
+- builder.AddOpenTelemetryConfiguration();
+- builder.AddOpenTelemetryLoggingConfiguration();
+
 ```bash
 dotnet restore src/MusicMasterShop/MusicMasterShop.slnx
 dotnet build src/MusicMasterShop/MusicMasterShop.slnx
@@ -233,7 +237,64 @@ dotnet run --project src/MusicMasterShop/Presentation/MusicMasterShop.WebApi
 ### Executar com Docker
 
 ```bash
-docker run src/MusicMasterShop/Presentation/MusicMasterShop.WebApi
+docker compose up --build -d
+```
+
+Serviços disponíveis:
+
+```text
+API:           http://localhost:8080/mmshop/v1
+Swagger:       http://localhost:8080/mmshop/swagger
+Kibana:        http://localhost:5601
+APM Server:    http://localhost:8200
+Elasticsearch: http://localhost:9200
+```
+
+Para acompanhar os logs:
+
+```bash
+docker compose logs -f
+```
+
+Para encerrar os containers:
+
+```bash
+docker compose down
+```
+
+### Observabilidade com OpenTelemetry e Elastic
+
+A API exporta traces, métricas e logs por OTLP/gRPC:
+
+```text
+Music Master Shop API -> APM Server -> Elasticsearch -> Kibana
+```
+
+Dentro da rede Docker, o endpoint utilizado pela API é:
+
+```text
+http://apm-server:8200
+```
+
+Os serviços são iniciados na seguinte ordem:
+
+1. Elasticsearch;
+2. Kibana;
+3. APM Server;
+4. Music Master Shop API.
+
+Para visualizar a telemetria:
+
+1. acesse `http://localhost:5601`;
+2. abra **Observability**;
+3. acesse **APM**;
+4. procure pelo serviço `music-master-shop-api`;
+5. utilize **Discover** para consultar logs e métricas.
+
+Os dados do Elasticsearch são persistidos no volume `elasticsearch-data`. Para remover os containers e também os dados:
+
+```bash
+docker compose down -v
 ```
 
 ## Formato e códigos de resposta
@@ -727,4 +788,3 @@ Para executar todos os testes:
 ```bash
 dotnet test src/MusicMasterShop/MusicMasterShop.slnx
 ```
-

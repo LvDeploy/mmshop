@@ -17,8 +17,8 @@ builder.AddCorsConfiguration();
 builder.AddSwaggerConfiguration();
 builder.AddEFContextConfiguration();
 builder.AddAuthenticationConfiguration();
-//builder.AddOpenTelemetryConfiguration();
-//builder.AddOpenTelemetryLoggingConfiguration();
+builder.AddOpenTelemetryConfiguration();
+builder.AddOpenTelemetryLoggingConfiguration();
 var app = builder.Build();
 EFContextConfiguration.CreateDataBase(app); //CRIA BD APENAS PRA TESTE
 // Configure the HTTP request pipeline.
