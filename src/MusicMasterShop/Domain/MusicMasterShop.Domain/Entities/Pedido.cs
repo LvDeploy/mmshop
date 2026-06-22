@@ -26,7 +26,10 @@ namespace MusicMasterShop.Domain.Entities
         public void SetNavigationProperties(Carrinho carrinho)
         {
             if (carrinho != null)
+            {
                 Carrinho = carrinho;
+                CarrinhoId = carrinho.Id;
+            }
         }
     }
 }

@@ -12,24 +12,27 @@ namespace MusicMasterShop.Domain.Entities
         }
 
         public int Quantidade { get; private set; }
-        public ICollection<Produto> Produtos { get; private set; } = null!;
+        public ICollection<Produto> Produtos { get; private set; } = [];
         public bool Ativo { get; set; }
         public Guid UsuarioId { get; private set; }
         public Usuario Usuario { get; private set; } = null!;
 
-        public static Produto Create(int quantidade, Produto produto, Usuario usuario)
+        public static Carrinho Create(int quantidade, Produto produto, Usuario usuario)
         {
             var carrinho = new Carrinho(Guid.NewGuid(), quantidade, true);
             carrinho.SetCreateDate(DateTime.Now);
             carrinho.SetNavigationProperties(new List<Produto>() { produto }, usuario);
-            return produto;
+            return carrinho;
         }
         public void SetNavigationProperties(ICollection<Produto> produtos, Usuario usuario)
         {
             if (produtos != null)
                 Produtos = produtos;
             if (usuario != null)
+            {
                 Usuario = usuario;
+                UsuarioId = usuario.Id;
+            }
         }
     }
 }
