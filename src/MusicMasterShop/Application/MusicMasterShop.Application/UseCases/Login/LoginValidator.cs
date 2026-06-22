@@ -8,12 +8,12 @@ public sealed class LoginValidator : AbstractValidator<LoginRequest>
     {
         RuleFor(x => x.Email)
             .NotEmpty()
-            .WithMessage("Campo e-mail não pode ser vazio")
+            .WithMessage(x => $"Campo {nameof(x.Email)} não pode ser vazio")
             .EmailAddress()
-            .WithMessage("Campo e-mail é inválido");
+            .WithMessage(x => $"Campo {nameof(x.Email)} é inválido");
 
         RuleFor(x => x.Senha)
             .NotEmpty()
-            .WithMessage("Campo senha não pode ser vazio");
+            .WithMessage(x => $"Campo {nameof(x.Senha)} não pode ser vazio");
     }
 }

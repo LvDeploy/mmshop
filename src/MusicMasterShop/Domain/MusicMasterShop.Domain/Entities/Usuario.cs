@@ -5,7 +5,7 @@ namespace MusicMasterShop.Domain.Entities
 {
     public sealed class Usuario : BaseEntity
     {
-        protected Usuario(Guid id, string email, string nome, string senha, TipoUsuario tipo, bool ativo, DateTime createdAt, DateTime? updatedAt)
+        protected Usuario(Guid id, string email, string nome, string senha, TipoUsuario tipo, bool ativo)
         {
             Email = email;
             Nome = nome;
@@ -13,8 +13,6 @@ namespace MusicMasterShop.Domain.Entities
             Tipo = tipo;
             Ativo = ativo;
             Id = id;
-            CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
         }
 
         public string Email { get; private set; } = string.Empty;
@@ -25,22 +23,21 @@ namespace MusicMasterShop.Domain.Entities
 
         public static Usuario Create(string email, string nome, string senha, TipoUsuario tipo)
         {
-            return new Usuario(Guid.NewGuid(), email, nome, senha, tipo, true, DateTime.Now, null);
+            var usuario = new Usuario(Guid.NewGuid(), email, nome, senha, tipo, true);
+            usuario.SetCreateDate(DateTime.Now);
+            return usuario;
         }
 
         public static Usuario Update(Guid id, string email, string nome, string senha, TipoUsuario tipo, DateTime createAt)
         {
-            return new Usuario(id, email, nome, senha, tipo, true, createAt, DateTime.Now);
+            var usuario = new Usuario(id, email, nome, senha, tipo, true);
+            usuario.SetUpdateDate(DateTime.Now);
+            return usuario;
         }
 
         public void SetPassword(string passwordHash)
         {
             Senha = passwordHash;
-        }
-
-        public static Usuario Restore(Guid id, string email, string nome, TipoUsuario tipo, bool ativo, DateTime createAt, DateTime updateAt)
-        {
-            return new Usuario(id ,email, nome, string.Empty, tipo, ativo, createAt, updateAt);
         }
     }
 }

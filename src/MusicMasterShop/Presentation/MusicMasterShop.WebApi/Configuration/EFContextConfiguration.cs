@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicMasterShop.Domain.Entities;
+using MusicMasterShop.Domain.Enums;
 using MusicMasterShop.InfraData.Context;
 
 namespace MusicMasterShop.WebApi.Configuration
@@ -15,6 +17,15 @@ namespace MusicMasterShop.WebApi.Configuration
             using var scope = app.Services.CreateScope();
             var dataContext = scope.ServiceProvider.GetService<EFContext>();
             dataContext?.Database.EnsureCreated();
+
+            if (!dataContext!.Categorias.Any())
+            {
+                dataContext.Categorias.AddRange(Categoria.Create(TipoCategoria.Sopro, "Instrumento de Sopro"),
+                    Categoria.Create(TipoCategoria.Corda, "Instrumento de Corda"),
+                    Categoria.Create(TipoCategoria.Percussao, "Instrumento de Percussão"),
+                    Categoria.Create(TipoCategoria.Tecla, "Instrumento de Tecla"));
+                dataContext.SaveChanges();
+            }
         }
     }
 }

@@ -1,0 +1,108 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: music-master-shop-elasticsearch
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.0
+    container_name: music-master-shop-kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --silent --fail http://localhost:5601/api/status || exit 1"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 45s
+    restart: unless-stopped
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:8.17.0
+    container_name: music-master-shop-apm-server
+    command:
+      - apm-server
+      - -e
+      - -E
+      - apm-server.host=0.0.0.0:8200
+      - -E
+      - apm-server.auth.anonymous.enabled=true
+      - -E
+      - output.elasticsearch.hosts=["http://elasticsearch:9200"]
+      - -E
+      - setup.kibana.host=http://kibana:5601
+    ports:
+      - "8200:8200"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "apm-server",
+          "test",
+          "output",
+          "-e",
+          "-E",
+          "output.elasticsearch.hosts=http://elasticsearch:9200"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  music-master-shop-api:
+    container_name: music-master-shop-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_CONFIGURATION: Release
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      Jwt__Key: local-docker-only-jwt-key-change-before-production
+      Jwt__Issuer: MusicMasterShop
+      Jwt__Audience: MusicMasterShop.Api
+      Jwt__ExpirationMinutes: 60
+      OtlpExporter__Endpoint: http://apm-server:8200
+    ports:
+      - "8080:8080"
+    depends_on:
+      apm-server:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  elasticsearch-data:
