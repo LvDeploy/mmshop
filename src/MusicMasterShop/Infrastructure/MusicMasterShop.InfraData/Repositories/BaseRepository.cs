@@ -34,21 +34,6 @@ namespace MusicMasterShop.InfraData.Repositories
             return await Context.Set<T>().ToListAsync(cancellationToken);
         }
 
-        public async Task<PagedResult<T>> GetAllPaged(int pageSize, int pageNumber, CancellationToken cancellationToken)
-        {
-            var query = Context.Set<T>().OrderBy(x => x.CreatedAt);
-            return new PagedResult<T>
-            {
-                Items = await query
-                        .Skip((pageNumber - 1) * pageSize)
-                        .Take(pageSize)
-                        .ToListAsync(),
-                CurrentPage = pageNumber,
-                PageSize = pageSize,
-                TotalCount = await query.CountAsync()
-            };
-        }
-
         public void Update(T entity)
         {
             Context.Update(entity);

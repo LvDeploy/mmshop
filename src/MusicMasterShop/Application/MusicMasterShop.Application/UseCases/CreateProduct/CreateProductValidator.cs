@@ -14,9 +14,9 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
                 .NotEmpty()
                 .WithMessage(x => $"Campo {nameof(x.Descricao)} não pode ser vazio");
 
-            RuleFor(x => x.Categoria)
+            RuleFor(x => x.TipoCategoriaId)
                 .NotEmpty()
-                .WithMessage(x => $"Campo {nameof(x.Categoria)} não pode ser vazio");
+                .WithMessage(x => $"Campo {nameof(x.TipoCategoriaId)} não pode ser vazio");
 
             RuleFor(x => x.Modelo)
                 .NotEmpty()
@@ -31,8 +31,8 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
                 .WithMessage(x => $"Campo {nameof(x.Preco)} deve ser maior que 0.0");
 
             RuleFor(x => x.GarantiaEmDias)
-                .GreaterThan(0)
-                .WithMessage(x => $"Campo {nameof(x.GarantiaEmDias)} deve ser maior que 0 dias");
+                .GreaterThanOrEqualTo(7)
+                .WithMessage(x => $"Campo {nameof(x.GarantiaEmDias)} deve ser maior ou igual a 7 dias");
 
             RuleFor(x => x.SerialNumber)
                .NotEmpty()

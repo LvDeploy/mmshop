@@ -46,34 +46,41 @@ public sealed class UpdateProductCommandHandler
                 Error.Set("Produto não encontrado"),
                 ErrorType.NotFound);
         }
-
-        Categoria? categoria = await _categoriaRepository.GetByTipoAsync(
-            request.Categoria!.Value,
-            cancellationToken);
-
-        if (categoria is null)
+        Categoria? categoria = null;
+        if (request.TipoCategoriaId != null)
         {
-            return ResponseWrapper.Failure<UpdateProductResponse>(
-                Error.Set("Categoria não encontrada"),
-                ErrorType.NotFound);
+            categoria = await _categoriaRepository.GetByTipoAsync(
+                request.TipoCategoriaId!.Value,
+                cancellationToken);
+
+
+            if (categoria is null)
+            {
+                return ResponseWrapper.Failure<UpdateProductResponse>(
+                    Error.Set("Categoria não encontrada"),
+                    ErrorType.NotFound);
+            }
+        }
+        Dimensao? dimensao = null;
+        if (request.Dimensoes != null)
+        {
+            dimensao = new Dimensao(
+                request.Dimensoes.AlturaCm,
+                request.Dimensoes.LarguraCm,
+                request.Dimensoes.ComprimentoCm,
+                request.Dimensoes.PesoKg);
         }
 
-        var dimensao = new Dimensao(
-            request.Dimensoes.AlturaCm,
-            request.Dimensoes.LarguraCm,
-            request.Dimensoes.ComprimentoCm,
-            request.Dimensoes.PesoKg);
-
-        produto.UpdateDetails(
-            request.Nome,
-            request.Descricao,
-            request.Modelo,
-            request.Marca,
-            request.SerialNumber,
-            request.GarantiaEmDias,
-            request.Preco,
-            dimensao,
-            categoria);
+        produto.Update(
+            string.IsNullOrEmpty(request.Nome) ? produto.Nome : request.Nome,
+            string.IsNullOrEmpty(request.Descricao) ? produto.Descricao : request.Descricao,
+            string.IsNullOrEmpty(request.Modelo) ? produto.Modelo : request.Modelo,
+            string.IsNullOrEmpty(request.Marca) ? produto.Marca : request.Marca,
+            string.IsNullOrEmpty(request.SerialNumber) ? produto.SerialNumber : request.SerialNumber,
+            request.GarantiaEmDias == 0 ? produto.GarantiaEmDias : request.GarantiaEmDias,
+            request.Preco == 0 ? produto.Preco : request.Preco,
+            dimensao == null ? produto.Dimensao : dimensao,
+            request.TipoCategoriaId == null ? produto.Categoria : categoria);
 
         await _unitOfWork.CommitAsync(cancellationToken);
 

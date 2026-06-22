@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using MusicMasterShop.Application.Middleware.Correlation;
 using MusicMasterShop.Application.Middleware.UserInfo;
 using MusicMasterShop.Application.Queries.GetProduct;
-using MusicMasterShop.Application.Queries.GetProductsPaged;
+using MusicMasterShop.Application.Queries.ListCategories;
+using MusicMasterShop.Application.Queries.ListProductsPaged;
 using MusicMasterShop.Application.UseCases.CreateProduct;
 using MusicMasterShop.Application.UseCases.DeleteProduct;
 using MusicMasterShop.Application.UseCases.UpdateProduct;
@@ -46,9 +47,9 @@ namespace MusicMasterShop.WebApi.Controllers.v1
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(SuccessResult<PagedResult<GetProductResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SuccessResult<PagedResult<ListProductsPagedResponse>>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<PagedResult<GetProductResponse>>> GetPaged(
+        public async Task<ActionResult<PagedResult<ListProductsPagedResponse>>> ListProductsPaged(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
             CancellationToken cancellationToken = default)
@@ -56,7 +57,7 @@ namespace MusicMasterShop.WebApi.Controllers.v1
             if (!_userInfo.IsAdministrator)
                 return Forbid();
 
-            var request = new GetProductsPagedRequest(pageNumber, pageSize);
+            var request = new ListProductsPagedRequest(pageNumber, pageSize);
             var result = await _mediator.Send(request, cancellationToken);
             return CreateResponse(result);
         }
@@ -112,6 +113,18 @@ namespace MusicMasterShop.WebApi.Controllers.v1
                 return Forbid();
 
             var result = await _mediator.Send(new DeleteProductRequest(id), cancellationToken);
+            return CreateResponse(result);
+        }
+
+        [HttpGet("categorias")]
+        [ProducesResponseType(typeof(SuccessResult<IEnumerable<ListCategoriesResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<ListCategoriesResponse>>> ListCategories(CancellationToken cancellationToken)
+        {
+            if (!_userInfo.IsAdministrator)
+                return Forbid();
+
+            var result = await _mediator.Send(new ListCategoriesRequest(), cancellationToken);
             return CreateResponse(result);
         }
     }

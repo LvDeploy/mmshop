@@ -7,12 +7,12 @@ public sealed class UpdateProductStorageCountValidator
 {
     public UpdateProductStorageCountValidator()
     {
-        RuleFor(request => request.Id)
+        RuleFor(x => x.Id)
             .NotEmpty()
-            .WithMessage("Id do produto não pode ser vazio");
+            .WithMessage(x => $"Campo {x.Id} não pode ser vazio");
 
-        RuleFor(request => request.Quantidade)
+        RuleFor(x => x.Quantidade)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("Quantidade deve ser maior ou igual a zero");
+            .WithMessage(x => $"Campo {x.Quantidade} deve ser maior ou igual a zero");
     }
 }

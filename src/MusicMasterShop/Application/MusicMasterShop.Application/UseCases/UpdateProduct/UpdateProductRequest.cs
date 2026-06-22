@@ -8,15 +8,15 @@ using MusicMasterShop.Domain.Enums;
 namespace MusicMasterShop.Application.UseCases.UpdateProduct;
 
 public sealed record UpdateProductRequest(
-    string Nome,
-    string Descricao,
-    string Modelo,
-    string Marca,
-    string SerialNumber,
+    string? Nome,
+    string? Descricao,
+    string? Modelo,
+    string? Marca,
+    string? SerialNumber,
     int GarantiaEmDias,
     decimal Preco,
-    CreateProductDimensaoRequest Dimensoes,
-    TipoCategoria? Categoria)
+    CreateProductDimensaoRequest? Dimensoes,
+    TipoCategoria? TipoCategoriaId)
     : BaseRequest, IRequest<BaseResponse<UpdateProductResponse>>
 {
     [JsonIgnore]

@@ -16,7 +16,7 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
             int GarantiaEmDias,
             decimal Preco,
             CreateProductDimensaoRequest Dimensoes,
-            TipoCategoria? Categoria) : BaseRequest, IRequest<BaseResponse<CreateProductResponse>>
+            TipoCategoria? TipoCategoriaId) : BaseRequest, IRequest<BaseResponse<CreateProductResponse>>
     {
         public override bool IsValid()
         {

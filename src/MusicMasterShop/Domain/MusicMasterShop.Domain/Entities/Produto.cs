@@ -45,36 +45,19 @@ namespace MusicMasterShop.Domain.Entities
             return produto;
         }
 
-        public static Produto Update(Guid id, string nome, string descricao, string modelo, string marca, string serialNumber, int? garantiaEmDias,
-            decimal preco, Dimensao dimensao, Categoria categoria)
-        {
-            var produto = new Produto(id, nome, descricao, modelo, marca, serialNumber, garantiaEmDias ?? 7, preco);
-            produto.SetUpdateDate(DateTime.Now);
-            produto.SetNavigationProperties(dimensao, categoria);
-            return produto;
-        }     
-
-        public void UpdateDetails(
-            string nome,
-            string descricao,
-            string modelo,
-            string marca,
-            string serialNumber,
-            int garantiaEmDias,
-            decimal preco,
-            Dimensao dimensao,
-            Categoria categoria)
+        public void Update(string nome, string descricao, string modelo, string marca, string serialNumber, int? garantiaEmDias,
+            decimal preco, Dimensao dimensao, Categoria? categoria)
         {
             Nome = nome;
             Descricao = descricao;
             Modelo = modelo;
             Marca = marca;
             SerialNumber = serialNumber;
-            GarantiaEmDias = garantiaEmDias;
+            GarantiaEmDias = garantiaEmDias ?? 7;
             Preco = preco;
-            SetNavigationProperties(dimensao, categoria);
             SetUpdateDate(DateTime.Now);
-        }
+            SetNavigationProperties(dimensao, categoria!);
+        }     
 
         public void SetNavigationProperties(Dimensao dimensao, Categoria categoria)
         {

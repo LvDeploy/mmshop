@@ -30,7 +30,7 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
             }
 
             var dimensaoVo = new Dimensao(request.Dimensoes.AlturaCm, request.Dimensoes.LarguraCm, request.Dimensoes.ComprimentoCm, request.Dimensoes.PesoKg);
-            var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.Categoria!.Value, cancellationToken);
+            var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
             if(categoriaEntity == null)
             {
                 return ResponseWrapper.Failure<CreateProductResponse>(

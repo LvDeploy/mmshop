@@ -47,6 +47,6 @@ public sealed class UpdateProductStorageCountCommandHandler
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return ResponseWrapper.Success(
-            new UpdateProductStorageCountResponse(produto.Id, produto.QtdDisponivel));
+            new UpdateProductStorageCountResponse(produto.Id));
     }
 }
