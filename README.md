@@ -124,7 +124,7 @@ O `CorrelationIdMiddleware` trata o identificador de rastreamento de cada requis
 
 ### Dependency Injection
 
-Handlers, serviços, repositórios, validadores e demais dependências são registrados no container nativo do ASP.NET Core.
+Handlers, serviços, repositórios e demais dependências são registrados no container nativo do ASP.NET Core.
 
 ### Builder Pattern
 
@@ -165,8 +165,8 @@ Authorization: Bearer SEU_TOKEN_JWT
 
 ### Respostas relacionadas à autenticação
 
-- `401 Unauthorized`: token ausente, inválido ou expirado; credenciais incorretas; ou categoria inexistente durante a criação de produto, conforme a regra atualmente implementada.
-- `403 Forbidden`: usuário autenticado, mas sem o perfil exigido, ou tentativa de acessar carrinho/pedido pertencente a outro vendedor.
+- `401 Unauthorized`: token ausente, inválido ou expirado; credenciais incorretas;
+- `403 Forbidden`: usuário autenticado, mas sem o perfil exigido;
 
 ## Correlation ID
 
@@ -260,7 +260,7 @@ docker compose down -v
 
 ### Observabilidade com OpenTelemetry e Elastic
 
-A API exporta traces, métricas e logs por OTLP/gRPC:
+A API exporta traces, métricas e logs:
 
 ```text
 Music Master Shop API -> APM Server -> Elasticsearch -> Kibana
