@@ -50,13 +50,9 @@ public sealed class ListProductsPagedQueryHandler
             produto.Id,
             produto.Nome,
             produto.Descricao,
-            produto.Modelo,
-            produto.Marca,
-            produto.SerialNumber,
-            produto.GarantiaEmDias,
+            produto.NumeroNotaFiscal,
             produto.Preco,
             produto.QtdDisponivel,
-            produto.Categoria.Tipo,
-            produto.Dimensao);
+            produto.Categoria.Tipo);
     }
 }

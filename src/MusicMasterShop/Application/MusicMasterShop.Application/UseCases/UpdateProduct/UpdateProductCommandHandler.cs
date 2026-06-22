@@ -4,7 +4,6 @@ using MusicMasterShop.Domain.Contracts.Repositories;
 using MusicMasterShop.Domain.Core.Result;
 using MusicMasterShop.Domain.Entities;
 using MusicMasterShop.Domain.Enums;
-using MusicMasterShop.Domain.ValueObjects;
 
 namespace MusicMasterShop.Application.UseCases.UpdateProduct;
 
@@ -61,25 +60,11 @@ public sealed class UpdateProductCommandHandler
                     ErrorType.NotFound);
             }
         }
-        Dimensao? dimensao = null;
-        if (request.Dimensoes != null)
-        {
-            dimensao = new Dimensao(
-                request.Dimensoes.AlturaCm,
-                request.Dimensoes.LarguraCm,
-                request.Dimensoes.ComprimentoCm,
-                request.Dimensoes.PesoKg);
-        }
 
         produto.Update(
             string.IsNullOrEmpty(request.Nome) ? produto.Nome : request.Nome,
             string.IsNullOrEmpty(request.Descricao) ? produto.Descricao : request.Descricao,
-            string.IsNullOrEmpty(request.Modelo) ? produto.Modelo : request.Modelo,
-            string.IsNullOrEmpty(request.Marca) ? produto.Marca : request.Marca,
-            string.IsNullOrEmpty(request.SerialNumber) ? produto.SerialNumber : request.SerialNumber,
-            request.GarantiaEmDias == 0 ? produto.GarantiaEmDias : request.GarantiaEmDias,
             request.Preco == 0 ? produto.Preco : request.Preco,
-            dimensao == null ? produto.Dimensao : dimensao,
             request.TipoCategoriaId == null ? produto.Categoria : categoria);
 
         await _unitOfWork.CommitAsync(cancellationToken);

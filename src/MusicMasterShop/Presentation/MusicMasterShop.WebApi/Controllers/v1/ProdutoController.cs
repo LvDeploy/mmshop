@@ -88,7 +88,7 @@ namespace MusicMasterShop.WebApi.Controllers.v1
             return CreateResponse(result);
         }
 
-        [HttpPatch("{id:Guid}/storage-count")]
+        [HttpPatch("{id:Guid}/adicionar-estoque")]
         [ProducesResponseType(typeof(SuccessResult<UpdateProductStorageCountResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailureResult), StatusCodes.Status404NotFound)]

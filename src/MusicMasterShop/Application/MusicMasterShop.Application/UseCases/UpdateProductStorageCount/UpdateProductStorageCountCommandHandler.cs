@@ -44,6 +44,7 @@ public sealed class UpdateProductStorageCountCommandHandler
         }
 
         produto.AddQtdDisponivel((uint)request.Quantidade);
+        produto.AddNotaFiscal(request.NumeroNotaFiscal);
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return ResponseWrapper.Success(

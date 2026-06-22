@@ -1,5 +1,4 @@
 ﻿using MusicMasterShop.Domain.Enums;
-using MusicMasterShop.Domain.ValueObjects;
 
 namespace MusicMasterShop.Application.Queries.GetProduct
 {
@@ -7,14 +6,10 @@ namespace MusicMasterShop.Application.Queries.GetProduct
             Guid Id,
             string Nome,
             string Descricao,
-            string Modelo,
-            string Marca,
-            string SerialNumber,
-            int GarantiaEmDias,
+            string NotaFiscal,
             decimal Preco,
             uint QtdDisponivel,
-            TipoCategoria? Categoria,
-            Dimensao Dimensao)
+            TipoCategoria? Categoria)
     {
     }
 }

@@ -17,21 +17,26 @@ internal sealed class CarrinhoConfiguration : IEntityTypeConfiguration<Carrinho>
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder
-           .HasMany(carrinho => carrinho.Produtos)
-           .WithMany()
-           .UsingEntity<Dictionary<string, object>>(
-               "CarrinhoProdutos",
-               right => right
-                   .HasOne<Produto>()
-                   .WithMany()
-                   .HasForeignKey("ProdutoId")
-                   .OnDelete(DeleteBehavior.Restrict),
-               left => left
-                   .HasOne<Carrinho>()
-                   .WithMany()
-                   .HasForeignKey("CarrinhoId")
-                   .OnDelete(DeleteBehavior.Cascade),
-               join => join.HasKey("CarrinhoId", "ProdutoId"));
+        builder.OwnsMany(carrinho => carrinho.Produtos, item =>
+        {
+            item.ToTable("CarrinhoProdutos");
+
+            item.WithOwner()
+                .HasForeignKey("CarrinhoId");
+
+            item.Property<int>("Id")
+                .ValueGeneratedOnAdd();
+
+            item.HasKey("CarrinhoId", "Id");
+
+            item.Property(carrinhoProduto => carrinhoProduto.Quantidade)
+                .IsRequired();
+
+            item.HasOne(carrinhoProduto => carrinhoProduto.Produto)
+                .WithMany()
+                .HasForeignKey("ProdutoId")
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }

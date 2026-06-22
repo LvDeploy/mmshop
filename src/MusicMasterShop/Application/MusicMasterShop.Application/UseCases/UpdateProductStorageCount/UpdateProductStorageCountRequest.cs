@@ -5,7 +5,7 @@ using MusicMasterShop.Application.Abstractions.Response;
 
 namespace MusicMasterShop.Application.UseCases.UpdateProductStorageCount;
 
-public sealed record UpdateProductStorageCountRequest(int Quantidade)
+public sealed record UpdateProductStorageCountRequest(int Quantidade, string NumeroNotaFiscal)
     : BaseRequest, IRequest<BaseResponse<UpdateProductStorageCountResponse>>
 {
     [JsonIgnore]

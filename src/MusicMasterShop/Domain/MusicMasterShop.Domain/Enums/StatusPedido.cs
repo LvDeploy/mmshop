@@ -7,6 +7,6 @@ namespace MusicMasterShop.Domain.Enums
     public enum StatusPedido
     {
         Validado = 1,
-        Erro = 2
+        Cancelado = 2
     }
 }

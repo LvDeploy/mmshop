@@ -11,6 +11,10 @@ public sealed class UpdateProductStorageCountValidator
             .NotEmpty()
             .WithMessage(x => $"Campo {x.Id} não pode ser vazio");
 
+        RuleFor(x => x.NumeroNotaFiscal)
+            .NotEmpty()
+            .WithMessage(x => $"Campo {x.NumeroNotaFiscal} não pode ser vazio");
+
         RuleFor(x => x.Quantidade)
             .GreaterThanOrEqualTo(0)
             .WithMessage(x => $"Campo {x.Quantidade} deve ser maior ou igual a zero");

@@ -27,14 +27,10 @@ namespace MusicMasterShop.Application.Queries.GetProduct
                 entity.Id,
                 entity.Nome,
                 entity.Descricao,
-                entity.Modelo,
-                entity.Marca,
-                entity.SerialNumber,
-                entity.GarantiaEmDias,
+                entity.NumeroNotaFiscal,
                 entity.Preco,
                 entity.QtdDisponivel,
-                entity.Categoria.Tipo,
-                entity.Dimensao));
+                entity.Categoria.Tipo));
         }
     }
 }

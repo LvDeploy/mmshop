@@ -8,71 +8,62 @@ namespace MusicMasterShop.Domain.Entities
         protected Produto(Guid id,
             string nome, 
             string descricao, 
-            string modelo, 
-            string marca, 
-            string serialNumber, 
-            int garantiaEmDias, 
             decimal preco)
         {
             Nome = nome;
             Descricao = descricao;
-            Modelo = modelo;
-            Marca = marca;
-            SerialNumber = serialNumber;
-            GarantiaEmDias = garantiaEmDias;
             Preco = preco;
             Id = id;
         }
 
         public string Nome { get; private set; } = string.Empty;
         public string Descricao { get; private set; } = string.Empty;
-        public string Modelo { get; private set; } = string.Empty;
-        public string Marca { get; private set; } = string.Empty;
-        public string SerialNumber { get; private set; } = string.Empty;
-        public int GarantiaEmDias { get; private set; } 
+        public string NumeroNotaFiscal { get; private set; } = string.Empty;
         public decimal Preco { get; private set; }
         public uint QtdDisponivel { get; private set; }
-        public Dimensao Dimensao { get; private set; } = null!;
         public Guid CategoriaId { get; private set; }
         public Categoria Categoria { get; private set; } = null!;
 
-        public static Produto Create(string nome, string descricao, string modelo, string marca, string serialNumber, int? garantiaEmDias,
-            decimal preco, Dimensao dimensao, Categoria categoria)
+        public static Produto Create(string nome, string descricao, 
+            decimal preco, Categoria categoria)
         {
-            var produto = new Produto(Guid.NewGuid(), nome, descricao, modelo, marca, serialNumber, garantiaEmDias ?? 7, preco);
+            var produto = new Produto(Guid.NewGuid(), nome, descricao, preco);
             produto.SetCreateDate(DateTime.Now);
-            produto.SetNavigationProperties(dimensao, categoria);
+            produto.SetNavigationProperties(categoria);
             return produto;
         }
 
-        public void Update(string nome, string descricao, string modelo, string marca, string serialNumber, int? garantiaEmDias,
-            decimal preco, Dimensao dimensao, Categoria? categoria)
+        public void Update(string nome, string descricao, 
+            decimal preco, Categoria? categoria)
         {
             Nome = nome;
             Descricao = descricao;
-            Modelo = modelo;
-            Marca = marca;
-            SerialNumber = serialNumber;
-            GarantiaEmDias = garantiaEmDias ?? 7;
             Preco = preco;
             SetUpdateDate(DateTime.Now);
-            SetNavigationProperties(dimensao, categoria!);
+            SetNavigationProperties(categoria!);
         }     
 
-        public void SetNavigationProperties(Dimensao dimensao, Categoria categoria)
+        public void SetNavigationProperties(Categoria categoria)
         {
-            if (dimensao != null)
-                Dimensao = dimensao;
             if (categoria != null)
             {
                 Categoria = categoria;
                 CategoriaId = categoria.Id;
             }
         }
-        
+        public void AddNotaFiscal(string numero)
+        {
+            NumeroNotaFiscal = numero;
+        }
+
         public void AddQtdDisponivel(uint qtd)
         {
             QtdDisponivel = qtd;
+        }
+
+        public void RemoveQtdDisponivel(uint quantidade)
+        {
+            QtdDisponivel -= quantidade;
         }
     }
 }

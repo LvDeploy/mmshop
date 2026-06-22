@@ -4,7 +4,6 @@ using MusicMasterShop.Domain.Contracts.Repositories;
 using MusicMasterShop.Domain.Core.Result;
 using MusicMasterShop.Domain.Entities;
 using MusicMasterShop.Domain.Enums;
-using MusicMasterShop.Domain.ValueObjects;
 
 namespace MusicMasterShop.Application.UseCases.CreateProduct
 {
@@ -29,8 +28,7 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
                 return ResponseWrapper.Failure<CreateProductResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
             }
 
-            var dimensaoVo = new Dimensao(request.Dimensoes.AlturaCm, request.Dimensoes.LarguraCm, request.Dimensoes.ComprimentoCm, request.Dimensoes.PesoKg);
-            var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
+             var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
             if(categoriaEntity == null)
             {
                 return ResponseWrapper.Failure<CreateProductResponse>(
@@ -40,12 +38,7 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
 
             var produtoEntity = Produto.Create(nome: request.Nome, 
                 descricao: request.Descricao, 
-                modelo: request.Modelo, 
-                marca: request.Marca, 
-                serialNumber: request.SerialNumber, 
-                garantiaEmDias: request.GarantiaEmDias,
                 preco: request.Preco,
-                dimensao: dimensaoVo,
                 categoria: categoriaEntity);
 
             _produtoRepository.Create(produtoEntity);
