@@ -30,49 +30,49 @@ public sealed class UpdateProductCommandHandler
     {
         try
         {
-        if (!request.IsValid())
-        {
-            return ResponseWrapper.Failure<UpdateProductResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
-        }
-
-        Produto? produto = await _produtoRepository.GetWithDetailsAsync(
-            request.Id,
-            cancellationToken);
-
-        if (produto is null)
-        {
-            return ResponseWrapper.Failure<UpdateProductResponse>(
-                Error.Set("Produto não encontrado"),
-                ErrorType.NotFound);
-        }
-        Categoria? categoria = null;
-        if (request.TipoCategoriaId != null)
-        {
-            categoria = await _categoriaRepository.GetByTipoAsync(
-                request.TipoCategoriaId!.Value,
-                cancellationToken);
-
-
-            if (categoria is null)
+            if (!request.IsValid())
             {
                 return ResponseWrapper.Failure<UpdateProductResponse>(
-                    Error.Set("Categoria não encontrada"),
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
+
+            Produto? produto = await _produtoRepository.GetWithDetailsAsync(
+                request.Id,
+                cancellationToken);
+
+            if (produto is null)
+            {
+                return ResponseWrapper.Failure<UpdateProductResponse>(
+                    Error.Set("Produto não encontrado"),
                     ErrorType.NotFound);
             }
-        }
+            Categoria? categoria = null;
+            if (request.TipoCategoriaId != null)
+            {
+                categoria = await _categoriaRepository.GetByTipoAsync(
+                    request.TipoCategoriaId!.Value,
+                    cancellationToken);
 
-        produto.Update(
-            string.IsNullOrEmpty(request.Nome) ? produto.Nome : request.Nome,
-            string.IsNullOrEmpty(request.Descricao) ? produto.Descricao : request.Descricao,
-            request.Preco == 0 ? produto.Preco : request.Preco,
-            request.TipoCategoriaId == null ? produto.Categoria : categoria);
 
-        await _unitOfWork.CommitAsync(cancellationToken);
+                if (categoria is null)
+                {
+                    return ResponseWrapper.Failure<UpdateProductResponse>(
+                        Error.Set("Categoria não encontrada"),
+                        ErrorType.NotFound);
+                }
+            }
 
-        return ResponseWrapper.Success(
-            new UpdateProductResponse(produto.Id, produto.UpdatedAt));
+            produto.Update(
+                string.IsNullOrEmpty(request.Nome) ? produto.Nome : request.Nome,
+                string.IsNullOrEmpty(request.Descricao) ? produto.Descricao : request.Descricao,
+                request.Preco == 0 ? produto.Preco : request.Preco,
+                request.TipoCategoriaId == null ? produto.Categoria : categoria);
+
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return ResponseWrapper.Success(
+                new UpdateProductResponse(produto.Id, produto.UpdatedAt));
         }
         catch (Exception ex)
         {

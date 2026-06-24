@@ -25,28 +25,28 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
         {
             try
             {
-            if (!request.IsValid())
-            {
-                return ResponseWrapper.Failure<CreateProductResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
-            }
+                if (!request.IsValid())
+                {
+                    return ResponseWrapper.Failure<CreateProductResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
+                }
 
-             var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
-            if(categoriaEntity == null)
-            {
-                return ResponseWrapper.Failure<CreateProductResponse>(
-                     Error.Set("Categoria não encontrada"),
-                     ErrorType.Unauthorized);
-            }
+                var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
+                if (categoriaEntity == null)
+                {
+                    return ResponseWrapper.Failure<CreateProductResponse>(
+                         Error.Set("Categoria não encontrada"),
+                         ErrorType.Unauthorized);
+                }
 
-            var produtoEntity = Produto.Create(nome: request.Nome, 
-                descricao: request.Descricao, 
-                preco: request.Preco,
-                categoria: categoriaEntity);
+                var produtoEntity = Produto.Create(nome: request.Nome,
+                    descricao: request.Descricao,
+                    preco: request.Preco,
+                    categoria: categoriaEntity);
 
-            _produtoRepository.Create(produtoEntity);
-            await _unitOfWork.CommitAsync(cancellationToken);
+                _produtoRepository.Create(produtoEntity);
+                await _unitOfWork.CommitAsync(cancellationToken);
 
-            return ResponseWrapper.Success<CreateProductResponse>(new CreateProductResponse(produtoEntity.Id, produtoEntity.CreatedAt));
+                return ResponseWrapper.Success<CreateProductResponse>(new CreateProductResponse(produtoEntity.Id, produtoEntity.CreatedAt));
             }
             catch (Exception ex)
             {

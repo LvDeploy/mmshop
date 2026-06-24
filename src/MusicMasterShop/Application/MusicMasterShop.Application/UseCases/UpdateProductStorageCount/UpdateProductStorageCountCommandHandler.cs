@@ -29,28 +29,28 @@ public sealed class UpdateProductStorageCountCommandHandler
     {
         try
         {
-        if (!request.IsValid())
-        {
-            return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
-        }
+            if (!request.IsValid())
+            {
+                return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
 
-        Produto? produto = await _produtoRepository.Get(request.Id, cancellationToken);
+            Produto? produto = await _produtoRepository.Get(request.Id, cancellationToken);
 
-        if (produto is null)
-        {
-            return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
-                Error.Set("Produto não encontrado"),
-                ErrorType.NotFound);
-        }
+            if (produto is null)
+            {
+                return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
+                    Error.Set("Produto não encontrado"),
+                    ErrorType.NotFound);
+            }
 
-        produto.AddQtdDisponivel((uint)request.Quantidade);
-        produto.AddNotaFiscal(request.NumeroNotaFiscal);
-        await _unitOfWork.CommitAsync(cancellationToken);
+            produto.AddQtdDisponivel((uint)request.Quantidade);
+            produto.AddNotaFiscal(request.NumeroNotaFiscal);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        return ResponseWrapper.Success(
-            new UpdateProductStorageCountResponse(produto.Id));
+            return ResponseWrapper.Success(
+                new UpdateProductStorageCountResponse(produto.Id));
         }
         catch (Exception ex)
         {

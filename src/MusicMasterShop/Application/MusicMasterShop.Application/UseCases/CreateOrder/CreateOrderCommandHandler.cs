@@ -35,81 +35,81 @@ public sealed class CreateOrderCommandHandler
     {
         try
         {
-        if (!request.IsValid())
-        {
-            return ResponseWrapper.Failure<CreateOrderResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
-        }
-
-        if (!_userInfo.IsAuthenticated
-            || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || !_userInfo.Id.HasValue)
-        {
-            return ResponseWrapper.Failure<CreateOrderResponse>(
-                Error.Set("Apenas usuários vendedores podem criar pedidos"),
-                ErrorType.Forbidden);
-        }
-
-        Carrinho? carrinho = await _carrinhoRepository.GetWithProductsAsync(
-            request.CarrinhoId,
-            cancellationToken);
-
-        if (carrinho is null)
-        {
-            return ResponseWrapper.Failure<CreateOrderResponse>(
-                Error.Set("Carrinho não encontrado"),
-                ErrorType.NotFound);
-        }
-
-        if (carrinho.UsuarioId != _userInfo.Id.Value)
-        {
-            return ResponseWrapper.Failure<CreateOrderResponse>(
-                Error.Set("O carrinho não pertence ao usuário autenticado"),
-                ErrorType.Forbidden);
-        }
-
-        if (!carrinho.Ativo)
-        {
-            return ResponseWrapper.Failure<CreateOrderResponse>(
-                Error.Set("Carrinho está inativo"),
-                ErrorType.BadRequest);
-        }
-
-        if (carrinho.Produtos.Count == 0)
-        {
-            return ResponseWrapper.Failure<CreateOrderResponse>(
-                Error.Set("Carrinho não possui produtos"),
-                ErrorType.BadRequest);
-        }
-
-        foreach (CarrinhoProduto item in carrinho.Produtos)
-        {
-            if (item.Quantidade <= 0
-                || item.Produto.QtdDisponivel < (uint)item.Quantidade)
+            if (!request.IsValid())
             {
                 return ResponseWrapper.Failure<CreateOrderResponse>(
-                    Error.Set($"{item.Produto.Nome} não tem estoque suficiente"),
+                    request.ValidationResult.Errors,
                     ErrorType.BadRequest);
             }
-        }
 
-        foreach (CarrinhoProduto item in carrinho.Produtos)
-        {
-            item.Produto.RemoveQtdDisponivel((uint)item.Quantidade);
-        }
+            if (!_userInfo.IsAuthenticated
+                || _userInfo.TipoUsuario != TipoUsuario.Vendedor
+                || !_userInfo.Id.HasValue)
+            {
+                return ResponseWrapper.Failure<CreateOrderResponse>(
+                    Error.Set("Apenas usuários vendedores podem criar pedidos"),
+                    ErrorType.Forbidden);
+            }
 
-        carrinho.Finalizar();
+            Carrinho? carrinho = await _carrinhoRepository.GetWithProductsAsync(
+                request.CarrinhoId,
+                cancellationToken);
 
-        Pedido pedido = Pedido.Create(
-            request.DocumentoCliente,
-            carrinho,
-            StatusPedido.Validado);
+            if (carrinho is null)
+            {
+                return ResponseWrapper.Failure<CreateOrderResponse>(
+                    Error.Set("Carrinho não encontrado"),
+                    ErrorType.NotFound);
+            }
 
-        _pedidoRepository.Create(pedido);
-        await _unitOfWork.CommitAsync(cancellationToken);
+            if (carrinho.UsuarioId != _userInfo.Id.Value)
+            {
+                return ResponseWrapper.Failure<CreateOrderResponse>(
+                    Error.Set("O carrinho não pertence ao usuário autenticado"),
+                    ErrorType.Forbidden);
+            }
 
-        return ResponseWrapper.Success(new CreateOrderResponse(pedido.Id));
+            if (!carrinho.Ativo)
+            {
+                return ResponseWrapper.Failure<CreateOrderResponse>(
+                    Error.Set("Carrinho está inativo"),
+                    ErrorType.BadRequest);
+            }
+
+            if (carrinho.Produtos.Count == 0)
+            {
+                return ResponseWrapper.Failure<CreateOrderResponse>(
+                    Error.Set("Carrinho não possui produtos"),
+                    ErrorType.BadRequest);
+            }
+
+            foreach (CarrinhoProduto item in carrinho.Produtos)
+            {
+                if (item.Quantidade <= 0
+                    || item.Produto.QtdDisponivel < (uint)item.Quantidade)
+                {
+                    return ResponseWrapper.Failure<CreateOrderResponse>(
+                        Error.Set($"{item.Produto.Nome} não tem estoque suficiente"),
+                        ErrorType.BadRequest);
+                }
+            }
+
+            foreach (CarrinhoProduto item in carrinho.Produtos)
+            {
+                item.Produto.RemoveQtdDisponivel((uint)item.Quantidade);
+            }
+
+            carrinho.Finalizar();
+
+            Pedido pedido = Pedido.Create(
+                request.DocumentoCliente,
+                carrinho,
+                StatusPedido.Validado);
+
+            _pedidoRepository.Create(pedido);
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return ResponseWrapper.Success(new CreateOrderResponse(pedido.Id));
         }
         catch (Exception ex)
         {

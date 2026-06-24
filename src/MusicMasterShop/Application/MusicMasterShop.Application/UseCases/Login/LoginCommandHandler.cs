@@ -31,27 +31,27 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginRequest, BaseResp
     {
         try
         {
-        if (!request.IsValid())
-        {
-            return ResponseWrapper.Failure<LoginResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
-        }
+            if (!request.IsValid())
+            {
+                return ResponseWrapper.Failure<LoginResponse>(
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
 
-        Usuario? usuario = await _usuarioRepository.GetByEmailAsync(
-            request.Email,
-            cancellationToken);
+            Usuario? usuario = await _usuarioRepository.GetByEmailAsync(
+                request.Email,
+                cancellationToken);
 
-        if (usuario is null || !usuario.Ativo || !PasswordIsValid(usuario, request.Senha))
-        {
-            return ResponseWrapper.Failure<LoginResponse>(
-                Error.Set("E-mail ou senha inválidos"),
-                ErrorType.Unauthorized);
-        }
+            if (usuario is null || !usuario.Ativo || !PasswordIsValid(usuario, request.Senha))
+            {
+                return ResponseWrapper.Failure<LoginResponse>(
+                    Error.Set("E-mail ou senha inválidos"),
+                    ErrorType.Unauthorized);
+            }
 
-        JwtTokenResult token = _jwtTokenService.GenerateToken(usuario);
+            JwtTokenResult token = _jwtTokenService.GenerateToken(usuario);
 
-        return ResponseWrapper.Success(new LoginResponse(token.Token, token.ExpiresAt));
+            return ResponseWrapper.Success(new LoginResponse(token.Token, token.ExpiresAt));
         }
         catch (Exception ex)
         {

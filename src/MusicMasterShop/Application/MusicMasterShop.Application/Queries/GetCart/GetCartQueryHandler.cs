@@ -29,36 +29,36 @@ public sealed class GetCartQueryHandler
     {
         try
         {
-        if (!_userInfo.IsAuthenticated
-            || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || !_userInfo.Id.HasValue)
-        {
-            return ResponseWrapper.Failure<GetCartResponse>(
-                Error.Set("Apenas usuários vendedores podem consultar o carrinho"),
-                ErrorType.Forbidden);
-        }
+            if (!_userInfo.IsAuthenticated
+                || _userInfo.TipoUsuario != TipoUsuario.Vendedor
+                || !_userInfo.Id.HasValue)
+            {
+                return ResponseWrapper.Failure<GetCartResponse>(
+                    Error.Set("Apenas usuários vendedores podem consultar o carrinho"),
+                    ErrorType.Forbidden);
+            }
 
-        Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
-            _userInfo.Id.Value,
-            cancellationToken);
+            Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
+                _userInfo.Id.Value,
+                cancellationToken);
 
-        if (carrinho is null)
-        {
-            return ResponseWrapper.Failure<GetCartResponse>(
-                Error.Set("Carrinho ativo não encontrado"),
-                ErrorType.NotFound);
-        }
+            if (carrinho is null)
+            {
+                return ResponseWrapper.Failure<GetCartResponse>(
+                    Error.Set("Carrinho ativo não encontrado"),
+                    ErrorType.NotFound);
+            }
 
-        GetCartItemResponse[] produtos = carrinho.Produtos
-            .Select(MapItem)
-            .ToArray();
+            GetCartItemResponse[] produtos = carrinho.Produtos
+                .Select(MapItem)
+                .ToArray();
 
-        return ResponseWrapper.Success(
-            new GetCartResponse(
-                carrinho.Id,
-                carrinho.CreatedAt,
-                carrinho.UpdatedAt,
-                produtos));
+            return ResponseWrapper.Success(
+                new GetCartResponse(
+                    carrinho.Id,
+                    carrinho.CreatedAt,
+                    carrinho.UpdatedAt,
+                    produtos));
         }
         catch (Exception ex)
         {

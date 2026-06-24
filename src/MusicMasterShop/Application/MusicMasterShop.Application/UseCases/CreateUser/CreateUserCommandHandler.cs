@@ -27,23 +27,23 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
         {
             try
             {
-            if (!request.IsValid())
-            {
-                return ResponseWrapper.Failure<CreateUserResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
-            }
+                if (!request.IsValid())
+                {
+                    return ResponseWrapper.Failure<CreateUserResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
+                }
 
-            var entity = Usuario.Create(email: request.Email.Trim(),
-                nome: request.Nome,
-                senha: string.Empty,
-                tipo: request.TipoUsuario!.Value);
+                var entity = Usuario.Create(email: request.Email.Trim(),
+                    nome: request.Nome,
+                    senha: string.Empty,
+                    tipo: request.TipoUsuario!.Value);
 
-            string passwordHash = _passwordHasher.HashPassword(entity, request.Senha);
-            entity.SetPassword(passwordHash);
+                string passwordHash = _passwordHasher.HashPassword(entity, request.Senha);
+                entity.SetPassword(passwordHash);
 
-            _userRepository.Create(entity);
-            await _unitOfWork.CommitAsync(cancellationToken);
+                _userRepository.Create(entity);
+                await _unitOfWork.CommitAsync(cancellationToken);
 
-            return ResponseWrapper.Success<CreateUserResponse>(new CreateUserResponse(entity.Id, entity.CreatedAt));
+                return ResponseWrapper.Success<CreateUserResponse>(new CreateUserResponse(entity.Id, entity.CreatedAt));
             }
             catch (Exception ex)
             {

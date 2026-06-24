@@ -27,21 +27,21 @@ public sealed class DeleteProductCommandHandler
     {
         try
         {
-        Produto? produto = await _produtoRepository.GetWithDetailsAsync(
-            request.Id,
-            cancellationToken);
+            Produto? produto = await _produtoRepository.GetWithDetailsAsync(
+                request.Id,
+                cancellationToken);
 
-        if (produto is null)
-        {
-            return ResponseWrapper.Failure<bool>(
-                Error.Set("Produto não encontrado"),
-                ErrorType.NotFound);
-        }
+            if (produto is null)
+            {
+                return ResponseWrapper.Failure<bool>(
+                    Error.Set("Produto não encontrado"),
+                    ErrorType.NotFound);
+            }
 
-        _produtoRepository.Delete(produto);
-        await _unitOfWork.CommitAsync(cancellationToken);
+            _produtoRepository.Delete(produto);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        return ResponseWrapper.Success(true);
+            return ResponseWrapper.Success(true);
         }
         catch (Exception ex)
         {
