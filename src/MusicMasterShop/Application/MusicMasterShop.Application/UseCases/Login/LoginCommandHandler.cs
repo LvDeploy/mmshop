@@ -56,7 +56,7 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginRequest, BaseResp
         catch (Exception ex)
         {
             return ResponseWrapper.Failure<LoginResponse>(
-               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
                ErrorType.InternalError);
         }
     }

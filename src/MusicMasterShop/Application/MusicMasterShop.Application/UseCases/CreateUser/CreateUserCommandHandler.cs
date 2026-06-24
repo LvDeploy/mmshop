@@ -48,7 +48,7 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
             catch (Exception ex)
             {
                 return ResponseWrapper.Failure<CreateUserResponse>(
-                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
                    ErrorType.InternalError);
             }
         }

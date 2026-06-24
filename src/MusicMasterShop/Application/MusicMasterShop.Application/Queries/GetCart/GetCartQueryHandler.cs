@@ -63,7 +63,7 @@ public sealed class GetCartQueryHandler
         catch (Exception ex)
         {
             return ResponseWrapper.Failure<GetCartResponse>(
-               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
                ErrorType.InternalError);
         }
     }

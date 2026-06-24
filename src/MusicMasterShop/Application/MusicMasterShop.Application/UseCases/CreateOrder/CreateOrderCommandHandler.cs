@@ -114,7 +114,7 @@ public sealed class CreateOrderCommandHandler
         catch (Exception ex)
         {
             return ResponseWrapper.Failure<CreateOrderResponse>(
-               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
                ErrorType.InternalError);
         }
     }

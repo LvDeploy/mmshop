@@ -55,7 +55,7 @@ public sealed class UpdateProductStorageCountCommandHandler
         catch (Exception ex)
         {
             return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
-               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
                ErrorType.InternalError);
         }
     }
