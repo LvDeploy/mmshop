@@ -28,6 +28,8 @@ public sealed class UpdateProductCommandHandler
         UpdateProductRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!request.IsValid())
         {
             return ResponseWrapper.Failure<UpdateProductResponse>(
@@ -71,5 +73,12 @@ public sealed class UpdateProductCommandHandler
 
         return ResponseWrapper.Success(
             new UpdateProductResponse(produto.Id, produto.UpdatedAt));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<UpdateProductResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 }

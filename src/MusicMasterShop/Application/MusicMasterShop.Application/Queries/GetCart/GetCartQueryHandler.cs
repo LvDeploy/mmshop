@@ -27,6 +27,8 @@ public sealed class GetCartQueryHandler
         GetCartRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!_userInfo.IsAuthenticated
             || _userInfo.TipoUsuario != TipoUsuario.Vendedor
             || !_userInfo.Id.HasValue)
@@ -57,6 +59,13 @@ public sealed class GetCartQueryHandler
                 carrinho.CreatedAt,
                 carrinho.UpdatedAt,
                 produtos));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<GetCartResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 
     private static GetCartItemResponse MapItem(CarrinhoProduto item)

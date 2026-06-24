@@ -29,6 +29,8 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginRequest, BaseResp
         LoginRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!request.IsValid())
         {
             return ResponseWrapper.Failure<LoginResponse>(
@@ -50,6 +52,13 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginRequest, BaseResp
         JwtTokenResult token = _jwtTokenService.GenerateToken(usuario);
 
         return ResponseWrapper.Success(new LoginResponse(token.Token, token.ExpiresAt));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<LoginResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 
     private bool PasswordIsValid(Usuario usuario, string password)

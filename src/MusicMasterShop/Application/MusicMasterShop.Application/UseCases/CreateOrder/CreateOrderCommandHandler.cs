@@ -33,6 +33,8 @@ public sealed class CreateOrderCommandHandler
         CreateOrderRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!request.IsValid())
         {
             return ResponseWrapper.Failure<CreateOrderResponse>(
@@ -108,5 +110,12 @@ public sealed class CreateOrderCommandHandler
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return ResponseWrapper.Success(new CreateOrderResponse(pedido.Id));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<CreateOrderResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 }

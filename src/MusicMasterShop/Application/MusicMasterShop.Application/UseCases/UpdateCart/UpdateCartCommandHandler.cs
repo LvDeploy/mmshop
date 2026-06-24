@@ -32,6 +32,8 @@ public sealed class UpdateCartCommandHandler
         UpdateCartRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!request.IsValid())
         {
             return ResponseWrapper.Failure<UpdateCartResponse>(
@@ -99,5 +101,12 @@ public sealed class UpdateCartCommandHandler
 
         return ResponseWrapper.Success(
             new UpdateCartResponse(carrinho.Id, carrinho.Produtos.Count));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<UpdateCartResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 }

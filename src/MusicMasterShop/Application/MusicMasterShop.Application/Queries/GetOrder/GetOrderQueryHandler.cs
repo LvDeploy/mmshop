@@ -27,47 +27,56 @@ public sealed class GetOrderQueryHandler
         GetOrderRequest request,
         CancellationToken cancellationToken)
     {
-        if (!_userInfo.IsAuthenticated
-            || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || !_userInfo.Id.HasValue)
+        try
+        {
+            if (!_userInfo.IsAuthenticated
+                || _userInfo.TipoUsuario != TipoUsuario.Vendedor
+                || !_userInfo.Id.HasValue)
+            {
+                return ResponseWrapper.Failure<GetOrderResponse>(
+                    Error.Set("Apenas usuarios vendedores podem consultar pedidos"),
+                    ErrorType.Forbidden);
+            }
+
+            Pedido? pedido = await _pedidoRepository.GetWithDetailsAsync(
+                request.PedidoId,
+                cancellationToken);
+
+            if (pedido is null)
+            {
+                return ResponseWrapper.Failure<GetOrderResponse>(
+                    Error.Set("Pedido nao encontrado"),
+                    ErrorType.NotFound);
+            }
+
+            if (pedido.Carrinho.UsuarioId != _userInfo.Id.Value)
+            {
+                return ResponseWrapper.Failure<GetOrderResponse>(
+                    Error.Set("O pedido nao pertence ao usuario autenticado"),
+                    ErrorType.Forbidden);
+            }
+
+            GetOrderItemResponse[] produtos = pedido.Carrinho.Produtos
+                .Select(MapItem)
+                .ToArray();
+
+            return ResponseWrapper.Success(
+                new GetOrderResponse(
+                    pedido.Id,
+                    pedido.CarrinhoId,
+                    pedido.Carrinho.Usuario.Nome,
+                    pedido.DocumentoCliente,
+                    pedido.Status,
+                    pedido.CreatedAt,
+                    pedido.UpdatedAt,
+                    produtos));
+        }
+        catch (Exception ex) 
         {
             return ResponseWrapper.Failure<GetOrderResponse>(
-                Error.Set("Apenas usuarios vendedores podem consultar pedidos"),
-                ErrorType.Forbidden);
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
         }
-
-        Pedido? pedido = await _pedidoRepository.GetWithDetailsAsync(
-            request.PedidoId,
-            cancellationToken);
-
-        if (pedido is null)
-        {
-            return ResponseWrapper.Failure<GetOrderResponse>(
-                Error.Set("Pedido nao encontrado"),
-                ErrorType.NotFound);
-        }
-
-        if (pedido.Carrinho.UsuarioId != _userInfo.Id.Value)
-        {
-            return ResponseWrapper.Failure<GetOrderResponse>(
-                Error.Set("O pedido nao pertence ao usuario autenticado"),
-                ErrorType.Forbidden);
-        }
-
-        GetOrderItemResponse[] produtos = pedido.Carrinho.Produtos
-            .Select(MapItem)
-            .ToArray();
-
-        return ResponseWrapper.Success(
-            new GetOrderResponse(
-                pedido.Id,
-                pedido.CarrinhoId,
-                pedido.Carrinho.Usuario.Nome,
-                pedido.DocumentoCliente,
-                pedido.Status,
-                pedido.CreatedAt,
-                pedido.UpdatedAt,
-                produtos));
     }
 
     private static GetOrderItemResponse MapItem(CarrinhoProduto item)

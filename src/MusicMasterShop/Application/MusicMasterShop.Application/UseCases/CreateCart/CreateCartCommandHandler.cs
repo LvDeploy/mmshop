@@ -35,6 +35,8 @@ public sealed class CreateCartCommandHandler
         CreateCartRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!request.IsValid())
         {
             return ResponseWrapper.Failure<CreateCartResponse>(
@@ -88,5 +90,12 @@ public sealed class CreateCartCommandHandler
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return ResponseWrapper.Success(new CreateCartResponse(carrinho.Id));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<CreateCartResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 }

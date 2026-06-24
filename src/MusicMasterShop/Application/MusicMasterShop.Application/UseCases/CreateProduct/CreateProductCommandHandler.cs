@@ -23,6 +23,8 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
         }
         public async Task<BaseResponse<CreateProductResponse>> Handle(CreateProductRequest request, CancellationToken cancellationToken)
         {
+            try
+            {
             if (!request.IsValid())
             {
                 return ResponseWrapper.Failure<CreateProductResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
@@ -45,6 +47,13 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
             await _unitOfWork.CommitAsync(cancellationToken);
 
             return ResponseWrapper.Success<CreateProductResponse>(new CreateProductResponse(produtoEntity.Id, produtoEntity.CreatedAt));
+            }
+            catch (Exception ex)
+            {
+                return ResponseWrapper.Failure<CreateProductResponse>(
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+                   ErrorType.InternalError);
+            }
         }
     }
 }

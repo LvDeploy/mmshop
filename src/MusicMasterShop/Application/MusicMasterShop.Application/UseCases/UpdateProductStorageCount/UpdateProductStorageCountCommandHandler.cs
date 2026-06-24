@@ -27,6 +27,8 @@ public sealed class UpdateProductStorageCountCommandHandler
         UpdateProductStorageCountRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         if (!request.IsValid())
         {
             return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
@@ -49,5 +51,12 @@ public sealed class UpdateProductStorageCountCommandHandler
 
         return ResponseWrapper.Success(
             new UpdateProductStorageCountResponse(produto.Id));
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 }

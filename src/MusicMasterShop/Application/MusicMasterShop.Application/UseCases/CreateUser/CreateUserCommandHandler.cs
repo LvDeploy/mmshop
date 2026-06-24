@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MusicMasterShop.Application.Abstractions.Response;
 using MusicMasterShop.Domain.Contracts.Repositories;
+using MusicMasterShop.Domain.Core.Result;
 using MusicMasterShop.Domain.Entities;
 using MusicMasterShop.Domain.Enums;
 
@@ -24,6 +25,8 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
 
         public async Task<BaseResponse<CreateUserResponse>> Handle(CreateUserRequest request, CancellationToken cancellationToken)
         {
+            try
+            {
             if (!request.IsValid())
             {
                 return ResponseWrapper.Failure<CreateUserResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
@@ -41,6 +44,13 @@ namespace MusicMasterShop.Application.UseCases.CreateUser
             await _unitOfWork.CommitAsync(cancellationToken);
 
             return ResponseWrapper.Success<CreateUserResponse>(new CreateUserResponse(entity.Id, entity.CreatedAt));
+            }
+            catch (Exception ex)
+            {
+                return ResponseWrapper.Failure<CreateUserResponse>(
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+                   ErrorType.InternalError);
+            }
         }
     }
 }

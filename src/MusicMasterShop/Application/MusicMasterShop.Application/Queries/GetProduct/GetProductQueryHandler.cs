@@ -16,21 +16,30 @@ namespace MusicMasterShop.Application.Queries.GetProduct
 
         public async Task<BaseResponse<GetProductResponse>> Handle(GetProductRequest request, CancellationToken cancellationToken)
         {
-            var entity = await _produtoRepository.GetWithDetailsAsync(request.Id, cancellationToken);
-
-            if (entity is null)
+            try
             {
-                return ResponseWrapper.Failure<GetProductResponse>(Error.Set("Registro não encontrado"), ErrorType.NotFound);
-            }
+                var entity = await _produtoRepository.GetWithDetailsAsync(request.Id, cancellationToken);
 
-            return ResponseWrapper.Success(new GetProductResponse(
-                entity.Id,
-                entity.Nome,
-                entity.Descricao,
-                entity.NumeroNotaFiscal,
-                entity.Preco,
-                entity.QtdDisponivel,
-                entity.Categoria.Tipo));
+                if (entity is null)
+                {
+                    return ResponseWrapper.Failure<GetProductResponse>(Error.Set("Registro não encontrado"), ErrorType.NotFound);
+                }
+
+                return ResponseWrapper.Success(new GetProductResponse(
+                    entity.Id,
+                    entity.Nome,
+                    entity.Descricao,
+                    entity.NumeroNotaFiscal,
+                    entity.Preco,
+                    entity.QtdDisponivel,
+                    entity.Categoria.Tipo));
+            }
+            catch (Exception ex)
+            {
+                return ResponseWrapper.Failure<GetProductResponse>(
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+                   ErrorType.InternalError);
+            }
         }
     }
 }

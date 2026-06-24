@@ -2,6 +2,7 @@ using MediatR;
 using MusicMasterShop.Application.Abstractions.Response;
 using MusicMasterShop.Domain.Contracts.Repositories;
 using MusicMasterShop.Domain.Core.Pagination;
+using MusicMasterShop.Domain.Core.Result;
 using MusicMasterShop.Domain.Entities;
 using MusicMasterShop.Domain.Enums;
 
@@ -21,27 +22,36 @@ public sealed class ListProductsPagedQueryHandler
         ListProductsPagedRequest request,
         CancellationToken cancellationToken)
     {
-        if (!request.IsValid())
+        try
+        {
+            if (!request.IsValid())
+            {
+                return ResponseWrapper.Failure<PagedResult<ListProductsPagedResponse>>(
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
+
+            PagedResult<Produto> products = await _produtoRepository.GetAllPagedWithDetailsAsync(
+                request.PageSize,
+                request.PageNumber,
+                cancellationToken);
+
+            var response = new PagedResult<ListProductsPagedResponse>
+            {
+                Items = products.Items.Select(Mapping).ToList(),
+                CurrentPage = products.CurrentPage,
+                PageSize = products.PageSize,
+                TotalCount = products.TotalCount
+            };
+
+            return ResponseWrapper.Success(response);
+        }
+        catch (Exception ex)
         {
             return ResponseWrapper.Failure<PagedResult<ListProductsPagedResponse>>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
+                Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+                ErrorType.InternalError);
         }
-
-        PagedResult<Produto> products = await _produtoRepository.GetAllPagedWithDetailsAsync(
-            request.PageSize,
-            request.PageNumber,
-            cancellationToken);
-
-        var response = new PagedResult<ListProductsPagedResponse>
-        {
-            Items = products.Items.Select(Mapping).ToList(),
-            CurrentPage = products.CurrentPage,
-            PageSize = products.PageSize,
-            TotalCount = products.TotalCount
-        };
-
-        return ResponseWrapper.Success(response);
     }
 
     private static ListProductsPagedResponse Mapping(Produto produto)

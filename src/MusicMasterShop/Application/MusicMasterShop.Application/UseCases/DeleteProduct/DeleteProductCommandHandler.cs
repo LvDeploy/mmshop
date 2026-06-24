@@ -25,6 +25,8 @@ public sealed class DeleteProductCommandHandler
         DeleteProductRequest request,
         CancellationToken cancellationToken)
     {
+        try
+        {
         Produto? produto = await _produtoRepository.GetWithDetailsAsync(
             request.Id,
             cancellationToken);
@@ -40,5 +42,12 @@ public sealed class DeleteProductCommandHandler
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return ResponseWrapper.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return ResponseWrapper.Failure<bool>(
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.Message}"),
+               ErrorType.InternalError);
+        }
     }
 }
