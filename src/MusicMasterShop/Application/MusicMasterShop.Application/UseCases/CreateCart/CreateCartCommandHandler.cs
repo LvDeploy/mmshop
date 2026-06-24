@@ -35,58 +35,67 @@ public sealed class CreateCartCommandHandler
         CreateCartRequest request,
         CancellationToken cancellationToken)
     {
-        if (!request.IsValid())
+        try
+        {
+            if (!request.IsValid())
+            {
+                return ResponseWrapper.Failure<CreateCartResponse>(
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
+
+            if (!_userInfo.IsAuthenticated
+                || _userInfo.TipoUsuario != TipoUsuario.Vendedor
+                || !_userInfo.Id.HasValue)
+            {
+                return ResponseWrapper.Failure<CreateCartResponse>(
+                    Error.Set("Apenas usuários vendedores podem criar carrinhos"),
+                    ErrorType.Forbidden);
+            }
+
+            Produto? produto = await _produtoRepository.Get(
+                request.ProdutoId,
+                cancellationToken);
+
+            if (produto is null)
+            {
+                return ResponseWrapper.Failure<CreateCartResponse>(
+                    Error.Set("Produto não encontrado"),
+                    ErrorType.NotFound);
+            }
+
+            Usuario? usuario = await _usuarioRepository.Get(_userInfo.Id.Value, cancellationToken);
+
+            if (usuario is null || !usuario.Ativo)
+            {
+                return ResponseWrapper.Failure<CreateCartResponse>(
+                    Error.Set("Usuário não encontrado ou inativo"),
+                    ErrorType.NotFound);
+            }
+
+            Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
+                _userInfo.Id.Value,
+                cancellationToken);
+
+            if (carrinho is null)
+            {
+                carrinho = Carrinho.Create(request.Quantidade, produto, usuario);
+                _carrinhoRepository.Create(carrinho);
+            }
+            else
+            {
+                carrinho.AddOrUpdateProduto(produto, request.Quantidade);
+            }
+
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return ResponseWrapper.Success(new CreateCartResponse(carrinho.Id));
+        }
+        catch (Exception ex)
         {
             return ResponseWrapper.Failure<CreateCartResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+               ErrorType.InternalError);
         }
-
-        if (!_userInfo.IsAuthenticated
-            || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || !_userInfo.Id.HasValue)
-        {
-            return ResponseWrapper.Failure<CreateCartResponse>(
-                Error.Set("Apenas usuários vendedores podem criar carrinhos"),
-                ErrorType.Forbidden);
-        }
-
-        Produto? produto = await _produtoRepository.Get(
-            request.ProdutoId,
-            cancellationToken);
-
-        if (produto is null)
-        {
-            return ResponseWrapper.Failure<CreateCartResponse>(
-                Error.Set("Produto não encontrado"),
-                ErrorType.NotFound);
-        }
-
-        Usuario? usuario = await _usuarioRepository.Get(_userInfo.Id.Value, cancellationToken);
-
-        if (usuario is null || !usuario.Ativo)
-        {
-            return ResponseWrapper.Failure<CreateCartResponse>(
-                Error.Set("Usuário não encontrado ou inativo"),
-                ErrorType.NotFound);
-        }
-
-        Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
-            _userInfo.Id.Value,
-            cancellationToken);
-
-        if (carrinho is null)
-        {
-            carrinho = Carrinho.Create(request.Quantidade, produto, usuario);
-            _carrinhoRepository.Create(carrinho);
-        }
-        else
-        {
-            carrinho.AddOrUpdateProduto(produto, request.Quantidade);
-        }
-
-        await _unitOfWork.CommitAsync(cancellationToken);
-
-        return ResponseWrapper.Success(new CreateCartResponse(carrinho.Id));
     }
 }

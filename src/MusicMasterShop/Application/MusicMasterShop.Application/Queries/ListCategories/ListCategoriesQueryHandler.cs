@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using MusicMasterShop.Application.Abstractions.Response;
 using MusicMasterShop.Domain.Contracts.Repositories;
+using MusicMasterShop.Domain.Core.Result;
 using MusicMasterShop.Domain.Entities;
+using MusicMasterShop.Domain.Enums;
 
 namespace MusicMasterShop.Application.Queries.ListCategories
 {
@@ -14,11 +16,20 @@ namespace MusicMasterShop.Application.Queries.ListCategories
         }
         public async Task<BaseResponse<IEnumerable<ListCategoriesResponse>>> Handle(ListCategoriesRequest request, CancellationToken cancellationToken)
         {
-            var entity = await _categoryRepository.GetAll(cancellationToken);
+            try
+            {
+                var entity = await _categoryRepository.GetAll(cancellationToken);
 
-            var list = entity.Select(Mapping).AsEnumerable();
+                var list = entity.Select(Mapping).AsEnumerable();
 
-            return ResponseWrapper.Success(list);
+                return ResponseWrapper.Success(list);
+            }
+            catch (Exception ex)
+            {
+                return ResponseWrapper.Failure<IEnumerable<ListCategoriesResponse>>(
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+                   ErrorType.InternalError);
+            }
         }
 
         private static ListCategoriesResponse Mapping(Categoria categoria)

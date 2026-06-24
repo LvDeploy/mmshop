@@ -27,36 +27,45 @@ public sealed class GetCartQueryHandler
         GetCartRequest request,
         CancellationToken cancellationToken)
     {
-        if (!_userInfo.IsAuthenticated
-            || _userInfo.TipoUsuario != TipoUsuario.Vendedor
-            || !_userInfo.Id.HasValue)
+        try
+        {
+            if (!_userInfo.IsAuthenticated
+                || _userInfo.TipoUsuario != TipoUsuario.Vendedor
+                || !_userInfo.Id.HasValue)
+            {
+                return ResponseWrapper.Failure<GetCartResponse>(
+                    Error.Set("Apenas usuários vendedores podem consultar o carrinho"),
+                    ErrorType.Forbidden);
+            }
+
+            Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
+                _userInfo.Id.Value,
+                cancellationToken);
+
+            if (carrinho is null)
+            {
+                return ResponseWrapper.Failure<GetCartResponse>(
+                    Error.Set("Carrinho ativo não encontrado"),
+                    ErrorType.NotFound);
+            }
+
+            GetCartItemResponse[] produtos = carrinho.Produtos
+                .Select(MapItem)
+                .ToArray();
+
+            return ResponseWrapper.Success(
+                new GetCartResponse(
+                    carrinho.Id,
+                    carrinho.CreatedAt,
+                    carrinho.UpdatedAt,
+                    produtos));
+        }
+        catch (Exception ex)
         {
             return ResponseWrapper.Failure<GetCartResponse>(
-                Error.Set("Apenas usuários vendedores podem consultar o carrinho"),
-                ErrorType.Forbidden);
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+               ErrorType.InternalError);
         }
-
-        Carrinho? carrinho = await _carrinhoRepository.GetActiveByUsuarioIdAsync(
-            _userInfo.Id.Value,
-            cancellationToken);
-
-        if (carrinho is null)
-        {
-            return ResponseWrapper.Failure<GetCartResponse>(
-                Error.Set("Carrinho ativo não encontrado"),
-                ErrorType.NotFound);
-        }
-
-        GetCartItemResponse[] produtos = carrinho.Produtos
-            .Select(MapItem)
-            .ToArray();
-
-        return ResponseWrapper.Success(
-            new GetCartResponse(
-                carrinho.Id,
-                carrinho.CreatedAt,
-                carrinho.UpdatedAt,
-                produtos));
     }
 
     private static GetCartItemResponse MapItem(CarrinhoProduto item)

@@ -27,27 +27,36 @@ public sealed class UpdateProductStorageCountCommandHandler
         UpdateProductStorageCountRequest request,
         CancellationToken cancellationToken)
     {
-        if (!request.IsValid())
+        try
+        {
+            if (!request.IsValid())
+            {
+                return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
+
+            Produto? produto = await _produtoRepository.Get(request.Id, cancellationToken);
+
+            if (produto is null)
+            {
+                return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
+                    Error.Set("Produto não encontrado"),
+                    ErrorType.NotFound);
+            }
+
+            produto.AddQtdDisponivel((uint)request.Quantidade);
+            produto.AddNotaFiscal(request.NumeroNotaFiscal);
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return ResponseWrapper.Success(
+                new UpdateProductStorageCountResponse(produto.Id));
+        }
+        catch (Exception ex)
         {
             return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+               ErrorType.InternalError);
         }
-
-        Produto? produto = await _produtoRepository.Get(request.Id, cancellationToken);
-
-        if (produto is null)
-        {
-            return ResponseWrapper.Failure<UpdateProductStorageCountResponse>(
-                Error.Set("Produto não encontrado"),
-                ErrorType.NotFound);
-        }
-
-        produto.AddQtdDisponivel((uint)request.Quantidade);
-        produto.AddNotaFiscal(request.NumeroNotaFiscal);
-        await _unitOfWork.CommitAsync(cancellationToken);
-
-        return ResponseWrapper.Success(
-            new UpdateProductStorageCountResponse(produto.Id));
     }
 }

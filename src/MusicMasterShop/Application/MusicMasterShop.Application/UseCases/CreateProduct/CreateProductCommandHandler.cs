@@ -23,28 +23,37 @@ namespace MusicMasterShop.Application.UseCases.CreateProduct
         }
         public async Task<BaseResponse<CreateProductResponse>> Handle(CreateProductRequest request, CancellationToken cancellationToken)
         {
-            if (!request.IsValid())
+            try
             {
-                return ResponseWrapper.Failure<CreateProductResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
-            }
+                if (!request.IsValid())
+                {
+                    return ResponseWrapper.Failure<CreateProductResponse>(request.ValidationResult.Errors, ErrorType.BadRequest);
+                }
 
-             var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
-            if(categoriaEntity == null)
+                var categoriaEntity = await _categoriaRepository.GetByTipoAsync(request.TipoCategoriaId!.Value, cancellationToken);
+                if (categoriaEntity == null)
+                {
+                    return ResponseWrapper.Failure<CreateProductResponse>(
+                         Error.Set("Categoria não encontrada"),
+                         ErrorType.Unauthorized);
+                }
+
+                var produtoEntity = Produto.Create(nome: request.Nome,
+                    descricao: request.Descricao,
+                    preco: request.Preco,
+                    categoria: categoriaEntity);
+
+                _produtoRepository.Create(produtoEntity);
+                await _unitOfWork.CommitAsync(cancellationToken);
+
+                return ResponseWrapper.Success<CreateProductResponse>(new CreateProductResponse(produtoEntity.Id, produtoEntity.CreatedAt));
+            }
+            catch (Exception ex)
             {
                 return ResponseWrapper.Failure<CreateProductResponse>(
-                     Error.Set("Categoria não encontrada"),
-                     ErrorType.Unauthorized);
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+                   ErrorType.InternalError);
             }
-
-            var produtoEntity = Produto.Create(nome: request.Nome, 
-                descricao: request.Descricao, 
-                preco: request.Preco,
-                categoria: categoriaEntity);
-
-            _produtoRepository.Create(produtoEntity);
-            await _unitOfWork.CommitAsync(cancellationToken);
-
-            return ResponseWrapper.Success<CreateProductResponse>(new CreateProductResponse(produtoEntity.Id, produtoEntity.CreatedAt));
         }
     }
 }

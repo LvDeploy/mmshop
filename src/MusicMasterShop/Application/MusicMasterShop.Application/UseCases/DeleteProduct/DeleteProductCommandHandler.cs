@@ -25,20 +25,29 @@ public sealed class DeleteProductCommandHandler
         DeleteProductRequest request,
         CancellationToken cancellationToken)
     {
-        Produto? produto = await _produtoRepository.GetWithDetailsAsync(
-            request.Id,
-            cancellationToken);
+        try
+        {
+            Produto? produto = await _produtoRepository.GetWithDetailsAsync(
+                request.Id,
+                cancellationToken);
 
-        if (produto is null)
+            if (produto is null)
+            {
+                return ResponseWrapper.Failure<bool>(
+                    Error.Set("Produto não encontrado"),
+                    ErrorType.NotFound);
+            }
+
+            _produtoRepository.Delete(produto);
+            await _unitOfWork.CommitAsync(cancellationToken);
+
+            return ResponseWrapper.Success(true);
+        }
+        catch (Exception ex)
         {
             return ResponseWrapper.Failure<bool>(
-                Error.Set("Produto não encontrado"),
-                ErrorType.NotFound);
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+               ErrorType.InternalError);
         }
-
-        _produtoRepository.Delete(produto);
-        await _unitOfWork.CommitAsync(cancellationToken);
-
-        return ResponseWrapper.Success(true);
     }
 }

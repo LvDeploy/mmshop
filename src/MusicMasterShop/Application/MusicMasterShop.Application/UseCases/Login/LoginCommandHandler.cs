@@ -29,27 +29,36 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginRequest, BaseResp
         LoginRequest request,
         CancellationToken cancellationToken)
     {
-        if (!request.IsValid())
+        try
+        {
+            if (!request.IsValid())
+            {
+                return ResponseWrapper.Failure<LoginResponse>(
+                    request.ValidationResult.Errors,
+                    ErrorType.BadRequest);
+            }
+
+            Usuario? usuario = await _usuarioRepository.GetByEmailAsync(
+                request.Email,
+                cancellationToken);
+
+            if (usuario is null || !usuario.Ativo || !PasswordIsValid(usuario, request.Senha))
+            {
+                return ResponseWrapper.Failure<LoginResponse>(
+                    Error.Set("E-mail ou senha inválidos"),
+                    ErrorType.Unauthorized);
+            }
+
+            JwtTokenResult token = _jwtTokenService.GenerateToken(usuario);
+
+            return ResponseWrapper.Success(new LoginResponse(token.Token, token.ExpiresAt));
+        }
+        catch (Exception ex)
         {
             return ResponseWrapper.Failure<LoginResponse>(
-                request.ValidationResult.Errors,
-                ErrorType.BadRequest);
+               Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+               ErrorType.InternalError);
         }
-
-        Usuario? usuario = await _usuarioRepository.GetByEmailAsync(
-            request.Email,
-            cancellationToken);
-
-        if (usuario is null || !usuario.Ativo || !PasswordIsValid(usuario, request.Senha))
-        {
-            return ResponseWrapper.Failure<LoginResponse>(
-                Error.Set("E-mail ou senha inválidos"),
-                ErrorType.Unauthorized);
-        }
-
-        JwtTokenResult token = _jwtTokenService.GenerateToken(usuario);
-
-        return ResponseWrapper.Success(new LoginResponse(token.Token, token.ExpiresAt));
     }
 
     private bool PasswordIsValid(Usuario usuario, string password)

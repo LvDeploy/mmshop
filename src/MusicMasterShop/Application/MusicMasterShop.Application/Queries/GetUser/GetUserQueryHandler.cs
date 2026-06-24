@@ -17,14 +17,23 @@ namespace MusicMasterShop.Application.Queries.GetUser
 
         public async Task<BaseResponse<GetUserResponse>> Handle(GetUserRequest request, CancellationToken cancellationToken)
         {;
-            var entity = await _userRepository.Get(request.Id, cancellationToken);
-
-            if(entity is null)
+            try
             {
-                return ResponseWrapper.Failure<GetUserResponse>(Error.Set("Registro não encontrado"), ErrorType.NotFound);
-            }
+                var entity = await _userRepository.Get(request.Id, cancellationToken);
 
-            return ResponseWrapper.Success<GetUserResponse>(new GetUserResponse(entity.Id, entity.Email, entity.Nome, entity.Tipo));
+                if(entity is null)
+                {
+                    return ResponseWrapper.Failure<GetUserResponse>(Error.Set("Registro não encontrado"), ErrorType.NotFound);
+                }
+
+                return ResponseWrapper.Success<GetUserResponse>(new GetUserResponse(entity.Id, entity.Email, entity.Nome, entity.Tipo));
+            }
+            catch (Exception ex)
+            {
+                return ResponseWrapper.Failure<GetUserResponse>(
+                   Error.Set($"Ocorreu um erro inesperado ao executar a ação. Message: {ex.Message}. Stacktrace: {ex.StackTrace}"),
+                   ErrorType.InternalError);
+            }
         }
     }
 }
